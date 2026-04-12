@@ -560,13 +560,14 @@
     </div>
 </section>
 
-        <!-- Slide 8: Documento -->
-        <section class="slide">
-            <h2 class="slide-title">Documentación y Resumen</h2>
-            <div class="doc-container">
-                <iframe src="https://correouss-my.sharepoint.com/personal/cvergarau_docente_uss_cl/_layouts/15/embed.aspx?UniqueId=42c7b3a9-9dcf-428f-a4f4-204171f2eee6" width="100%" height="100%" frameborder="0"></iframe>
-            </div>
-        </section>
+<!-- Slide 8: Documento -->
+<section class="slide">
+    <h2 class="slide-title">Documentación y Resumen</h2>
+    <div class="doc-container">
+        <!-- NOTA: Cambiamos 'src' por 'data-src' y le dimos un id -->
+        <iframe id="docIframe" data-src="https://correouss-my.sharepoint.com/personal/cvergarau_docente_uss_cl/_layouts/15/embed.aspx?UniqueId=42c7b3a9-9dcf-428f-a4f4-204171f2eee6" width="100%" height="100%" frameborder="0"></iframe>
+    </div>
+</section>
 
 <!-- Slide 9: Conclusión -->
 <section class="slide">
@@ -681,14 +682,10 @@
         const totalSlides = slides.length;
 
         function updateUI() {
-            // Mover el slider
             slider.style.transform = `translateX(-${currentIdx * 100}%)`;
-            
-            // Actualizar barra y contador
             progressBar.style.width = ((currentIdx + 1) / totalSlides) * 100 + '%';
             counter.innerText = `${currentIdx + 1} / ${totalSlides}`;
             
-            // Estado de los botones
             document.getElementById('prevBtn').disabled = currentIdx === 0;
             const nextBtn = document.getElementById('nextBtn');
             if(currentIdx === totalSlides - 1) {
@@ -697,11 +694,16 @@
                 nextBtn.innerHTML = 'Siguiente <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
             }
 
-            // Activar animaciones de la slide actual
             slides.forEach((s, i) => s.classList.toggle('active', i === currentIdx));
-            
-            // Renderizar ecuaciones de MathJax si existen en la slide
             if (window.MathJax) MathJax.typesetPromise();
+
+            // --- NUEVO: Cargar el documento solo al llegar a la Slide 8 (índice 7) ---
+            if (currentIdx === 7) {
+                const iframe = document.getElementById('docIframe');
+                if (iframe && !iframe.src) {
+                    iframe.src = iframe.getAttribute('data-src');
+                }
+            }
         }
 
         function moveSlide(dir) {
