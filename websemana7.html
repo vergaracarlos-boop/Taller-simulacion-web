@@ -29,19 +29,24 @@
             --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
+        html, body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
         }
+
+        * {
+            box-sizing: border-box;
+        } 
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--navy);
             color: var(--text-main);
             overflow: hidden;
-            height: 100vh;
-            width: 100vw;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom:0;
         }
 
         /* Barra de Progreso */
@@ -68,8 +73,14 @@
         .slides-wrapper {
             display: flex;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             transition: transform var(--transition);
+            opacity: 0;
+            animation: fadeIn 0.5s 0.3s fowards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
         .slide {
@@ -757,8 +768,20 @@
                 icon.style.transform = 'rotate(0deg)';
             }
         }
-        // Inicializar
-        updateUI();
+// Inicializar adaptado para Blackboard
+        // En lugar de arrancar de inmediato, esperamos que Blackboard acomode su iframe
+        window.addEventListener('load', () => {
+            updateUI();
+            
+            // Forzar un "redibujo" tras 300 milisegundos para corregir cortes en el LMS
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+                updateUI();
+                
+                // Si el slide 1 estaba oculto, nos aseguramos de mostrarlo
+                document.querySelector('.slides-wrapper').style.opacity = '1';
+            }, 300);
+        });
     </script>
 </body>
 </html>
