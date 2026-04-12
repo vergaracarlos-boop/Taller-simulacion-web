@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller de Simulación de Eventos Discretos</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- MathJax para ecuaciones LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        :root {
+            /* Paleta de colores modernizada */
+            --navy: #0B192C;
+            --navy-light: #1A365D;
+            --accent: #2563EB;
+            --accent-hover: #1D4ED8;
+            --yt-red: #E53E3E;
+            --bg-light: #F8FAFC;
+            --bg-alt: #F1F5F9;
+            --text-main: #334155;
+            --text-dark: #0F172A;
+            --white: #ffffff;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--navy);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Barra de Progreso */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.2);
+            z-index: 1000;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3B82F6, #60A5FA);
+            transition: width 0.4s ease;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+
+        /* Contenedor Principal */
+        .slides-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            transition: transform var(--transition);
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            /* Fondo con gradiente sutil */
+            background: linear-gradient(135deg, var(--bg-light) 0%, #E2E8F0 100%);
+            display: flex;
+            padding: 5% 8%;
+            position: relative;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide:nth-child(even) { 
+            background: linear-gradient(135deg, var(--white) 0%, var(--bg-alt) 100%); 
+        }
+
+        h1.main-title {
+            font-size: 3.8rem;
+            color: var(--text-dark);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        h2.slide-title {
+            font-size: 2.5rem;
+            color: var(--navy-light);
+            font-weight: 800;
+            margin-bottom: 2.5rem;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.5px;
+        }
+
+        h2.slide-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 80px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        /* Listas y animaciones en cascada */
+        .points-list { list-style: none; }
+
+        .point-item {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .slide.active .point-item { opacity: 1; transform: translateX(0); }
+        
+        /* Retraso escalonado para los items de la lista */
+        .point-item:nth-child(1) { transition-delay: 0.1s; }
+        .point-item:nth-child(2) { transition-delay: 0.2s; }
+        .point-item:nth-child(3) { transition-delay: 0.3s; }
+        .point-item:nth-child(4) { transition-delay: 0.4s; }
+
+        .point-item span {
+            color: var(--accent);
+            font-weight: 800;
+            margin-right: 15px;
+            font-size: 1.3rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        /* Tarjetas estilo Glassmorphism */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-left: 8px solid var(--accent);
+        }
+
+        .highlight-simio {
+            background: linear-gradient(90deg, #EFF6FF, #DBEAFE);
+            border: 2px dashed var(--accent);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--accent-hover);
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        /* Diseño de Tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        th, td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        th {
+            background: var(--navy-light);
+            color: var(--white);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        tr:hover td {
+            background: #F8FAFC;
+        }
+
+        /* Botones */
+        .btn {
+            background: var(--accent);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn:hover { 
+            background: var(--accent-hover); 
+            transform: translateY(-3px); 
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn:disabled {
+            background: #CBD5E1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-yt {
+            background: var(--yt-red);
+            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+        }
+        
+        .btn-yt:hover {
+            background: #C53030;
+            box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+        }
+
+        /* Navegación Inferior */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 30px;
+            border-radius: 50px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        #counter {
+            font-weight: 700;
+            color: var(--navy-light);
+            font-size: 1.1rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 50px;
+            border-radius: 24px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .video-container {
+            width: 90%;
+            max-width: 1000px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 2.5rem;
+            cursor: pointer;
+            color: #94A3B8;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover { color: var(--yt-red); }
+
+        .doc-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+            box-shadow: var(--shadow-lg);
+            background: var(--white);
+        }
+
+        /* SVG Decorativo en Slide 1 */
+        .hero-graphic {
+            width: 100%;
+            max-width: 400px;
+            filter: drop-shadow(0 20px 30px rgba(37, 99, 235, 0.2));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @media (max-width: 992px) {
+            .grid-layout { grid-template-columns: 1fr; gap: 30px; }
+            h1.main-title { font-size: 2.5rem; }
+            h2.slide-title { font-size: 2rem; margin-bottom: 1.5rem; }
+            .hero-graphic { display: none; } /* Ocultar gráfico en móvil para ahorrar espacio */
+            .slide { padding: 8% 5% 20% 5%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="progress-container"><div id="progress-bar"></div></div>
+
+    <div class="slides-wrapper" id="slider">
+        
+        <!-- Slide 1: Apertura -->
+        <section class="slide active">
+            <div class="grid-layout">
+                <div>
+                    <h1 class="main-title">Optimiza Sistemas Complejos con Simulación</h1>
+                    <p style="font-size: 1.4rem; color: var(--accent); margin-bottom: 2.5rem; font-weight: 600;">Taller de Ingeniería: Eventos Discretos y SIMIO.</p>
+                    <div class="card" style="border-left-color: var(--accent);">
+                        <h4 style="margin-bottom: 15px; color: var(--navy-light); font-size: 1.2rem;">Agenda de la Sesión</h4>
+                        <ul class="points-list" style="font-size: 1rem; margin-bottom: 0;">
+                            <li class="point-item" style="padding: 10px 15px; margin-bottom: 10px;"><span>01</span> Fundamentos de SED</li>
+                            <li class="point-item" style="padding: 10px 15px; margin-bottom: 10px;"><span>02</span> SED vs Montecarlo</li>
+                            <li class="point-item" style="padding: 10px 15px; margin-bottom: 10px;"><span>03</span> Software y SIMIO</li>
+                            <li class="point-item" style="padding: 10px 15px; margin-bottom: 0;"><span>04</span> Caso Práctico</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <!-- Gráfico SVG modernizado -->
+                    <svg class="hero-graphic" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="#E2E8F0" stroke-width="2"/>
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="#2563EB" stroke-width="4" stroke-dasharray="100 400" stroke-linecap="round">
+                            <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="10s" repeatCount="indefinite"/>
+                        </circle>
+                        <rect x="70" y="70" width="60" height="60" rx="15" fill="#0B192C" />
+                        <circle cx="50" cy="100" r="12" fill="#3B82F6" />
+                        <circle cx="150" cy="100" r="12" fill="#3B82F6" />
+                        <path d="M62 100 L70 100 M130 100 L138 100" stroke="#3B82F6" stroke-width="3" stroke-dasharray="4 2"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Problema -->
+        <section class="slide">
+            <h2 class="slide-title">El Costo de las Decisiones a Ciegas</h2>
+            <div class="grid-layout">
+                <ul class="points-list">
+                    <li class="point-item"><span>⚠️</span> Sistemas con variabilidad estocástica inmanejable.</li>
+                    <li class="point-item"><span>🚧</span> Cuellos de botella invisibles en la operación.</li>
+                    <li class="point-item"><span>💸</span> Probar en físico es lento, peligroso y costoso.</li>
+                </ul>
+                <div class="card" style="border-left-color: var(--yt-red);">
+                    <p style="font-style: italic; font-size: 1.3rem; color: var(--navy-light); line-height: 1.6;">
+                        "La simulación permite <strong style="color: var(--yt-red);">fallar en lo virtual</strong> para tener éxito en lo real."
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Concepto SED -->
+        <section class="slide">
+            <h2 class="slide-title">Simulación por Eventos Discretos (SED)</h2>
+            <div class="grid-layout">
+                <div>
+                    <p style="margin-bottom: 25px; font-size: 1.25rem; line-height: 1.6;">
+                        Modelado donde el estado del sistema cambia solo en <strong style="color: var(--accent);">puntos discretos</strong> del tiempo.
+                    </p>
+                    <div class="card" style="background: var(--navy); color: white; border-left: none;">
+                        <p style="color: #94A3B8; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Estado dinámico</p>
+                        <div style="font-size: 1.5rem; margin: 15px 0;">
+                            $$S(t + \Delta t) = f(S(t), E_i)$$
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 10px;" onclick="openModal('modalEcuacion')">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            Desglosar Ecuación
+                        </button>
+                    </div>
+                </div>
+                <ul class="points-list">
+                    <li class="point-item"><span>1</span> <strong>Entidades:</strong> Fluyen por el sistema (ej. clientes, piezas).</li>
+                    <li class="point-item"><span>2</span> <strong>Eventos:</strong> Cambian el estado actual (ej. llegada, salida).</li>
+                    <li class="point-item"><span>3</span> <strong>Recursos:</strong> Elementos de capacidad limitada (ej. máquinas, cajeros).</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 4: SED vs Montecarlo -->
+        <section class="slide">
+            <h2 class="slide-title">Diferencia Crítica con Montecarlo</h2>
+            <div style="max-width: 1000px; margin: 0 auto; width: 100%;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Método Montecarlo</th>
+                            <th>Eventos Discretos (SED)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Variable Tiempo</strong></td>
+                            <td>Estático / Ignorado</td>
+                            <td><span style="color: var(--accent); font-weight: bold;">Dinámico (cronológico)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lógica Principal</strong></td>
+                            <td>Muestreo probabilístico repetitivo</td>
+                            <td><span style="color: var(--accent); font-weight: bold;">Interacción de procesos</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Objetivo</strong></td>
+                            <td>Calcular valores agregados o riesgos</td>
+                            <td><span style="color: var(--accent); font-weight: bold;">Evaluar evolución y flujos en el tiempo</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Slide 5: Software -->
+        <section class="slide">
+            <h2 class="slide-title">Ecosistema de Software</h2>
+            <div class="grid-layout">
+                <ul class="points-list">
+                    <li class="point-item"><span>💻</span> <strong>Lenguajes:</strong> Python (SimPy), Java. Requieren alta programación.</li>
+                    <li class="point-item"><span>🏢</span> <strong>Comerciales:</strong> Arena, FlexSim, AnyLogic. Entornos visuales.</li>
+                    <li class="point-item"><span>🚀</span> <strong>Tendencia:</strong> Gemelos Digitales (Digital Twins) en tiempo real.</li>
+                </ul>
+                <div class="card" style="text-align: center;">
+                    <h4 style="color: var(--text-main); font-size: 1.1rem;">Nuestra herramienta de elección:</h4>
+                    <div class="highlight-simio">
+                        ⭐ SOFTWARE SIMIO ⭐
+                    </div>
+                    <p style="margin-top: 20px; font-size: 1rem; color: var(--text-main); line-height: 1.5;">
+                        Líder actual en la industria por su modelado orientado a objetos, animación 3D nativa y potentes análisis de riesgo.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: SIMIO -->
+        <section class="slide">
+            <h2 class="slide-title">SIMIO: Revolución en el Modelado</h2>
+            <div class="grid-layout">
+                <div class="card">
+                    <p style="font-weight: 800; color: var(--navy); font-size: 1.4rem; margin-bottom: 15px;">Modelado Orientado a Objetos</p>
+                    <p style="line-height: 1.6; font-size: 1.1rem;">
+                        Elimina la necesidad de escribir código complejo de programación al utilizar <strong>objetos inteligentes</strong> y procesos lógicos que se conectan visualmente.
+                    </p>
+                </div>
+                <ul class="points-list">
+                    <li class="point-item"><span>✨</span> Animación 3D profesional integrada.</li>
+                    <li class="point-item"><span>🧠</span> Aplicación de IA y Redes Neuronales.</li>
+                    <li class="point-item"><span>📊</span> Análisis SMORE para medir el riesgo de las decisiones.</li>
+                </ul>
+            </div>
+        </section>
+
+       <!-- Slide 7: Video (SOLUCIÓN NUEVA PESTAÑA) -->
+<section class="slide">
+    <h2 class="slide-title">Aprendizaje Visual en Acción</h2>
+    <div class="grid-layout">
+        <div>
+            <p style="font-size: 1.3rem; font-weight: 600; margin-bottom: 15px;">
+                Vea la lógica de una línea de producción simulada en tiempo real.
+            </p>
+            <p style="font-size: 1.05rem; color: #64748B; line-height: 1.5; margin-bottom: 30px;">
+                Este video ha sido seleccionado para ejemplificar visualmente cómo el software maneja las entidades, las colas y la capacidad de los servidores.
+            </p>
+            <!-- Etiqueta <a> en lugar de <button> -->
+            <a href="https://www.youtube.com/watch?v=64s2bvOcUv8" target="_blank" class="btn btn-yt" style="text-decoration: none;">
+                <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                Ver Video en YouTube
+            </a>
+        </div>
+        <!-- Miniatura decorativa con enlace directo -->
+        <a href="https://www.youtube.com/watch?v=64s2bvOcUv8" target="_blank" style="display: block; text-decoration: none;">
+            <div style="background: url('https://img.youtube.com/vi/64s2bvOcUv8/maxresdefault.jpg') center/cover; border-radius: 20px; box-shadow: var(--shadow-lg); height: 300px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <div style="background: rgba(0,0,0,0.5); width: 100%; height: 100%; position: absolute; border-radius: 20px; transition: background 0.3s;"></div>
+                <svg width="80" height="80" fill="white" viewBox="0 0 24 24" style="position: relative; z-index: 10;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+            </div>
+        </a>
+    </div>
+</section>
+
+        <!-- Slide 8: Documento -->
+        <section class="slide">
+            <h2 class="slide-title">Documentación y Resumen</h2>
+            <div class="doc-container">
+                <iframe src="https://correouss-my.sharepoint.com/personal/cvergarau_docente_uss_cl/_layouts/15/embed.aspx?UniqueId=42c7b3a9-9dcf-428f-a4f4-204171f2eee6" width="100%" height="100%" frameborder="0"></iframe>
+            </div>
+        </section>
+
+<!-- Slide 9: Conclusión -->
+<section class="slide">
+    <h2 class="slide-title">Próximos Pasos</h2>
+    <div class="grid-layout">
+        <ul class="points-list">
+            
+            <!-- Elemento 1 Desplegable (Acordeón) -->
+            <li class="point-item" style="display: block; cursor: pointer; padding: 15px 25px;" onclick="toggleBlackboard(event)">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <span>1</span>
+                        <div>
+                            <span style="font-weight: 700; color: var(--text-dark); font-size: 1.15rem;">Ver aviso en Blackboard (SIMIO)</span>
+                            <span style="display: block; font-size: 0.85rem; color: var(--accent); margin-top: 4px;">[Clic aquí para desplegar instrucciones]</span>
+                        </div>
+                    </div>
+                    <svg id="bb-icon" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.4s; color: var(--accent);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                
+                <!-- Contenido Oculto -->
+                <div id="bb-content" style="max-height: 0; overflow: hidden; transition: all 0.5s ease; opacity: 0;">
+                    <div style="padding-top: 15px; margin-top: 15px; border-top: 1px solid #E2E8F0; font-size: 0.95rem; line-height: 1.5; color: var(--text-main);">
+                        <p style="margin-bottom: 10px;"><strong>Estimados/as estudiantes:</strong> durante esta semana deben instalar SIMIO en sus computadores ya que a partir de la otra clase vamos a trabajar con este software en la unidad "Simulación por eventos discretos".</p>
+                        <p style="margin-bottom: 12px; font-weight: 600; color: var(--text-dark);">Favor leer este mensaje:</p>
+                        
+                        <!-- Caja de texto de SIMIO (Con scroll interno por si la pantalla es pequeña) -->
+                        <div style="background: var(--bg-alt); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent); font-family: monospace; font-size: 0.85rem; max-height: 180px; overflow-y: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                            
+                            <p style="margin-bottom: 10px;">Complete and submit the form found at <br>
+                            <a href="https://forms.simio.com/f/student-license?tfa_5=00702-6734769985&tfa_17=Yes" target="_blank" style="color: var(--accent); font-weight: bold; text-decoration: underline; word-break: break-all;">https://forms.simio.com/f/student-license?tfa_5=00702-6734769985&tfa_17=Yes</a><br>
+                            with Student License Claim Code <strong style="background: #FEF08A; padding: 2px 6px; color: #000; border-radius: 4px;">00702-6734769985</strong> to request your Student License using the email address that was provided to you by your university. Once your request is approved, you will receive an email with your license and instructions to activate it. For best results, use the provided link or copy and paste the claim code exactly as shown above. Note, it does not contain any letters.</p>
+                            
+                            <p style="margin-bottom: 10px;">Important information on licenses, version compatibility, and troubleshooting can be found in the More Resources section of our Academic Licensing page.</p>
+                            
+                            <p style="margin-bottom: 15px;">This claim code is unique to your instructor and should only be shared by them.</p>
+                            
+                            <p style="margin-bottom: 10px;"><strong>Effective Date:</strong> April 11, 2026<br>
+                            <strong>Expiration Date:</strong> May 6, 2027</p>
+                            
+                            <p><strong>Download Simio:</strong><br>
+                            <a href="https://cdn.simio.com/software/Simio-19.280.50134.zip" target="_blank" style="color: var(--accent); font-weight: bold; text-decoration: underline; word-break: break-all;">https://cdn.simio.com/software/Simio-19.280.50134.zip</a></p>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Elemento 2 -->
+            <li class="point-item" style="padding: 15px 25px; align-items: center;">
+                <span>2</span>
+                <span style="color: var(--text-dark); font-weight: 600; font-size: 1.15rem; margin: 0;">Iniciar el caso de estudio práctico guiado.</span>
+            </li>
+        </ul>
+        
+        <div class="card" style="text-align: center; border-left: none; background: var(--navy); color: white;">
+            <h1 style="color: var(--white); font-size: 3rem; margin-bottom: 10px; font-weight: 800;">¿Preguntas?</h1>
+            <p style="color: #94A3B8; font-size: 1.1rem;">Fin de la Sesión Teórica</p>
+        </div>
+    </div>
+</section>
+
+    </div>
+
+    <!-- Controles -->
+    <div class="controls">
+        <button class="btn" style="margin-top: 0; background: var(--bg-alt); color: var(--text-dark); box-shadow: none;" id="prevBtn" onclick="moveSlide(-1)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <div id="counter">1 / 9</div>
+        <button class="btn" style="margin-top: 0;" id="nextBtn" onclick="moveSlide(1)">
+            Siguiente
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+    </div>
+
+    <!-- Modal Ecuación -->
+    <div id="modalEcuacion" class="modal" onclick="closeModal('modalEcuacion')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('modalEcuacion')">&times;</span>
+            <h3 style="color: var(--navy); margin-bottom: 20px; font-size: 1.5rem;">Desglose de la Ecuación</h3>
+            <p style="margin-bottom: 15px; font-size: 1.1rem;">La expresión <strong>$S(t + \Delta t) = f(S(t), E_i)$</strong> define la lógica del sistema:</p>
+            <ul style="margin-left: 20px; font-size: 1.05rem; line-height: 1.8; color: var(--text-main);">
+                <li><strong>$S(t)$</strong>: Estado actual del sistema en el tiempo $t$ (ej: número de personas en cola).</li>
+                <li><strong>$E_i$</strong>: Evento disparador (ej: llega un nuevo cliente).</li>
+                <li><strong>$\Delta t$</strong>: El salto de tiempo <em>(dinámico)</em> hasta el próximo evento programado.</li>
+            </ul>
+            <div style="background: var(--bg-alt); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid var(--accent);">
+                <p style="font-size: 0.95rem; font-weight: 600;">En la simulación SED, el reloj no avanza segundo a segundo de forma lineal, sino que "salta" directamente de un evento al siguiente.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Video -->
+    <div id="modalVideo" class="modal" onclick="closeVideo()">
+        <span class="close-modal" style="top: 30px; right: 40px; color: white;" onclick="closeVideo()">&times;</span>
+        <div class="video-container" onclick="event.stopPropagation()">
+            <!-- El iframe inicia vacío para no consumir recursos -->
+            <iframe id="ytPlayer" width="100%" height="100%" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script>
+        let currentIdx = 0;
+        const slider = document.getElementById('slider');
+        const progressBar = document.getElementById('progress-bar');
+        const counter = document.getElementById('counter');
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function updateUI() {
+            // Mover el slider
+            slider.style.transform = `translateX(-${currentIdx * 100}%)`;
+            
+            // Actualizar barra y contador
+            progressBar.style.width = ((currentIdx + 1) / totalSlides) * 100 + '%';
+            counter.innerText = `${currentIdx + 1} / ${totalSlides}`;
+            
+            // Estado de los botones
+            document.getElementById('prevBtn').disabled = currentIdx === 0;
+            const nextBtn = document.getElementById('nextBtn');
+            if(currentIdx === totalSlides - 1) {
+                nextBtn.innerHTML = 'Fin <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            } else {
+                nextBtn.innerHTML = 'Siguiente <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
+            }
+
+            // Activar animaciones de la slide actual
+            slides.forEach((s, i) => s.classList.toggle('active', i === currentIdx));
+            
+            // Renderizar ecuaciones de MathJax si existen en la slide
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function moveSlide(dir) {
+            currentIdx = Math.max(0, Math.min(totalSlides - 1, currentIdx + dir));
+            updateUI();
+        }
+
+        // Control de Modales
+        function openModal(id) { 
+            const modal = document.getElementById(id);
+            modal.style.display = 'flex'; 
+            // Pequeño timeout para que la transición CSS de opacidad funcione
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+        
+        function closeModal(id) { 
+            const modal = document.getElementById(id);
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        // Control específico del Video (CORREGIDO)
+        function openVideo() {
+            const player = document.getElementById('ytPlayer');
+            // Se usa el formato /embed/ obligatorio para iframes y autoplay=1
+            player.src = "https://www.youtube.com/embed/64s2bvOcUv8?autoplay=1";
+            openModal('modalVideo');
+        }
+
+        function closeVideo() {
+            const player = document.getElementById('ytPlayer');
+            // Se vacía el src para detener la reproducción del video
+            player.src = "";
+            closeModal('modalVideo');
+        }
+
+
+        // Soporte para teclado (Flechas y Espacio)
+        document.addEventListener('keydown', (e) => {
+            // Ignorar si hay un modal abierto
+            if (document.querySelector('.modal.show')) {
+                if (e.key === 'Escape') {
+                    closeModal('modalEcuacion');
+                    closeVideo();
+                }
+                return; 
+            }
+
+            if (e.key === 'ArrowRight' || e.key === ' ') moveSlide(1);
+            if (e.key === 'ArrowLeft') moveSlide(-1);
+        });
+
+// Función para el acordeón de la Slide 9
+        function toggleBlackboard(event) {
+            // Prevenir que el panel se cierre si se hace clic exactamente sobre un Link (A)
+            if (event.target.tagName === 'A') return;
+            
+            const content = document.getElementById('bb-content');
+            const icon = document.getElementById('bb-icon');
+            
+            if (content.style.maxHeight === '0px' || content.style.maxHeight === '') {
+                content.style.maxHeight = '450px'; // Altura de expansión
+                content.style.opacity = '1';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.maxHeight = '0px';
+                content.style.opacity = '0';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+        // Inicializar
+        updateUI();
+    </script>
+</body>
+</html>
