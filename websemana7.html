@@ -642,19 +642,23 @@
         </button>
     </div>
 
-    <!-- Modal Ecuación -->
+<!-- Modal Ecuación -->
     <div id="modalEcuacion" class="modal" onclick="closeModal('modalEcuacion')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close-modal" onclick="closeModal('modalEcuacion')">&times;</span>
             <h3 style="color: var(--navy); margin-bottom: 20px; font-size: 1.5rem;">Desglose de la Ecuación</h3>
-            <p style="margin-bottom: 15px; font-size: 1.1rem;">La expresión <strong>$S(t + \Delta t) = f(S(t), E_i)$</strong> define la lógica del sistema:</p>
+            
+            <!-- Cambiamos los $$ y $ por \( y \) que es el formato estándar para ecuaciones en línea -->
+            <p style="margin-bottom: 15px; font-size: 1.1rem;">La expresión <strong>\( S(t + \Delta t) = f(S(t), E_i) \)</strong> define la lógica del sistema:</p>
+            
             <ul style="margin-left: 20px; font-size: 1.05rem; line-height: 1.8; color: var(--text-main);">
-                <li><strong>$S(t)$</strong>: Estado actual del sistema en el tiempo $t$ (ej: número de personas en cola).</li>
-                <li><strong>$E_i$</strong>: Evento disparador (ej: llega un nuevo cliente).</li>
-                <li><strong>$\Delta t$</strong>: El salto de tiempo <em>(dinámico)</em> hasta el próximo evento programado.</li>
+                <li><strong>\( S(t) \)</strong>: Estado actual del sistema en el tiempo \( t \).</li>
+                <li><strong>\( E_i \)</strong>: Evento disparador (ej: llega un nuevo cliente).</li>
+                <li><strong>\( \Delta t \)</strong>: El salto de tiempo dinámico hasta el próximo evento.</li>
             </ul>
+            
             <div style="background: var(--bg-alt); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid var(--accent);">
-                <p style="font-size: 0.95rem; font-weight: 600;">En la simulación SED, el reloj no avanza segundo a segundo de forma lineal, sino que "salta" directamente de un evento al siguiente.</p>
+                <p style="font-size: 0.95rem; font-weight: 600;">En la simulación SED, el reloj no avanza segundo a segundo, "salta" de un evento al siguiente.</p>
             </div>
         </div>
     </div>
@@ -709,8 +713,13 @@
         function openModal(id) { 
             const modal = document.getElementById(id);
             modal.style.display = 'flex'; 
-            // Pequeño timeout para que la transición CSS de opacidad funcione
-            setTimeout(() => modal.classList.add('show'), 10);
+            setTimeout(() => {
+                modal.classList.add('show');
+                // Obligamos a MathJax a dibujar las ecuaciones del modal al abrirlo
+                if (window.MathJax) {
+                    MathJax.typesetPromise([modal]);
+                }
+            }, 10);
         }
         
         function closeModal(id) { 
