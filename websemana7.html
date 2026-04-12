@@ -615,11 +615,48 @@
                 </div>
             </li>
 
-            <!-- Elemento 2 -->
-            <li class="point-item" style="padding: 15px 25px; align-items: center;">
-                <span>2</span>
-                <span style="color: var(--text-dark); font-weight: 600; font-size: 1.15rem; margin: 0;">Iniciar el caso de estudio práctico guiado.</span>
-            </li>
+            <!-- Elemento 2: Descarga de Caso -->
+                    <style>
+                        /* Animación para el botón de descarga */
+                        .item-download:hover {
+                            transform: translateY(-3px) !important;
+                            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15) !important;
+                            border-color: #BFDBFE !important;
+                        }
+                        .item-download:hover .diskette {
+                            background: var(--accent) !important;
+                            color: white !important;
+                            animation: savePulse 1.5s infinite;
+                        }
+                        @keyframes savePulse {
+                            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+                            70% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+                            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+                        }
+                    </style>
+                    <li class="point-item item-download" style="padding: 0; align-items: stretch; border: 1px solid transparent; transition: all 0.3s ease; overflow: hidden;">
+                        <!-- Enlace con la URL de SharePoint -->
+                        <a href="https://correouss-my.sharepoint.com/:b:/g/personal/cvergarau_docente_uss_cl/IQBFZ5WJQCJtTrUjJF_CN1-3Aa1mW6bmEZgN0ESoAxGpuKA?e=jaut61" target="_blank" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 15px 25px; text-decoration: none;">
+                            
+                            <div style="display: flex; align-items: center;">
+                                <span style="color: var(--accent); font-weight: 800; margin-right: 15px; font-size: 1.3rem; min-width: 30px; text-align: center;">2</span>
+                                <div>
+                                    <span style="color: var(--text-dark); font-weight: 700; font-size: 1.15rem; margin: 0; display: block;">Iniciar el caso de estudio práctico guiado.</span>
+                                    <span style="font-size: 0.85rem; color: var(--accent); margin-top: 4px; display: block;">[Clic aquí para descargar el documento]</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Ícono de Disquete (Diskette) Animado -->
+                            <div class="diskette" style="background: #EFF6FF; padding: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent); transition: all 0.4s ease;">
+                                <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                            </div>
+                            
+                        </a>
+                    </li>
         </ul>
         
         <div class="card" style="text-align: center; border-left: none; background: var(--navy); color: white;">
