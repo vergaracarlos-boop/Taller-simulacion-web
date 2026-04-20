@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Resultados y Sensibilidad en Simio</title>
+    <!-- Tipografía: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* RESET & BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfcfc;
+            color: #111827;
+            overflow: hidden; /* Todo se maneja por slides */
+            line-height: 1.6;
+        }
+
+        /* TYPOGRAPHY */
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: clamp(1rem, 1.5vw, 1.125rem);
+            font-weight: 300;
+            color: #334155;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-accent {
+            color: #1d4ed8; 
+            font-weight: 600;
+        }
+
+        .huge-number {
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 800;
+            color: #e2e8f0;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        /* LAYOUT & GRID */
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 10vh 10vw;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease-in-out, visibility 0.6s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto; /* Evita que el contenido se pierda en pantallas chicas */
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        .slide-header {
+            position: absolute;
+            top: 3rem;
+            left: 10vw;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .grid-asymmetric {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: clamp(2rem, 5vw, 6rem);
+            align-items: center;
+            width: 100%;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(2rem, 4vw, 4rem);
+        }
+
+        /* UI ELEMENTS */
+        .box {
+            border-left: 4px solid #0f172a;
+            padding-left: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .box-warning {
+            border-left: 4px solid #b91c1c;
+            background-color: #fef2f2;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .link-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            background-color: #0f172a;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .link-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-outline {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            background-color: transparent;
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            border: 2px solid #0f172a;
+            cursor: pointer;
+        }
+
+        .btn-outline:hover {
+            background-color: #0f172a;
+            color: #ffffff;
+        }
+
+        /* MODAL CSS */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 3rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            position: relative;
+            transform: translateY(30px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1.5rem; right: 1.5rem;
+            background: none; border: none;
+            font-size: 2rem; color: #94a3b8;
+            cursor: pointer; transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #0f172a;
+        }
+
+        .modal-body p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            color: #475569;
+        }
+        
+        .modal-body strong {
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        /* PDF IFRAME WRAPPER */
+        .pdf-container {
+            width: 100%;
+            height: 45vh;
+            min-height: 250px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .pdf-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .url-text {
+            font-size: 0.75rem;
+            color: #64748b;
+            word-break: break-all;
+            margin-top: 0.5rem;
+            font-family: monospace;
+        }
+
+        /* ABSTRACT CSS GRAPHICS */
+        .graphic-container {
+            width: 100%;
+            height: clamp(200px, 30vh, 300px);
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border-radius: 4px;
+        }
+
+        .smore-bar {
+            width: 60%;
+            height: 40px;
+            background: rgba(29, 78, 216, 0.2);
+            border: 2px solid #1d4ed8;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .smore-mean {
+            position: absolute;
+            width: 4px;
+            height: 60px;
+            background: #0f172a;
+            top: -12px;
+            left: 50%;
+        }
+
+        .tornado-bar {
+            height: 30px;
+            background: #475569;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            color: white;
+            padding: 0 10px;
+            font-size: 0.8rem;
+        }
+
+        /* CONTROLS */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 5vw;
+            z-index: 100;
+            display: flex;
+            gap: 1rem;
+            background: rgba(255,255,255,0.8);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn-nav {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav:hover {
+            border-color: #0f172a;
+            background: #0f172a;
+            color: #fff;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .grid-asymmetric {
+                grid-template-columns: 1fr;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .slide {
+                padding: 6rem 5vw 8rem 5vw;
+                justify-content: flex-start;
+            }
+            .slide-header {
+                top: 2rem;
+                left: 5vw;
+            }
+            .modal-content {
+                padding: 2rem;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation" id="presentation">
+
+    <!-- SLIDE 1: Portada -->
+    <div class="slide active">
+        <div class="slide-header">01. Portada</div>
+        <div class="grid-asymmetric">
+            <div>
+                <h1>Análisis de Resultados y Sensibilidad en Simio.</h1>
+                <p>Interpretando la incertidumbre para la inversión estratégica.</p>
+            </div>
+            <div class="box">
+                <h3>Rigor Intermedio</h3>
+                <p>Enfoque diseñado para el perfil de toma de decisiones del <strong>Ingeniero Civil Industrial</strong>. Transformando datos estocásticos en decisiones reales.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: Agenda -->
+    <div class="slide">
+        <div class="slide-header">02. Agenda Interactiva</div>
+        <h2>Hoja de Ruta del Aprendizaje</h2>
+        <div class="grid-2" style="margin-top: 2rem;">
+            <div>
+                <div class="huge-number">01</div>
+                <h3>Réplicas Estocásticas</h3>
+                <p>Comprendiendo la variabilidad.</p>
+            </div>
+            <div>
+                <div class="huge-number">02</div>
+                <h3>Precisión y Half Width</h3>
+                <p>Definiendo márgenes de error.</p>
+            </div>
+            <div>
+                <div class="huge-number">03</div>
+                <h3>Gráficos SMORE</h3>
+                <p>Comparación visual robusta.</p>
+            </div>
+            <div>
+                <div class="huge-number">04</div>
+                <h3>Gráfico de Tornado</h3>
+                <p>Análisis de sensibilidad y variables críticas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Video -->
+    <div class="slide">
+        <div class="slide-header">03. Introducción</div>
+        <div class="grid-asymmetric">
+            <div>
+                <h2>La Síntesis Creativa</h2>
+                <p>Motivación audiovisual generada mediante lógica de NotebookLM para comprender el valor del modelado antes de entrar al detalle técnico.</p>
+                <a href="https://youtu.be/b9ozIrWhqGQ" target="_blank" class="link-btn">Ver Video Introductorio</a>
+            </div>
+            <div class="graphic-container" style="background: #0f172a; color: white;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Lectura Previa -->
+    <div class="slide">
+        <div class="slide-header">04. Fundamentos</div>
+        <div class="grid-asymmetric">
+            <div>
+                <h2>¿Por qué una sola corrida es solo una anécdota?</h2>
+                <p>Para modelar la realidad, se necesita rigor. Se debe dominar la base teórica antes de ejecutar simulaciones complejas.</p>
+                <div class="box">
+                    <h3>Acción Requerida</h3>
+                    <p>Revisar el documento adjunto antes del taller práctico.</p>
+                    <a href="https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/Resumen_Clase_8.pdf" target="_blank" class="link-btn" style="background: #334155;">Descargar Resumen PDF</a>
+                </div>
+            </div>
+            <div>
+                <div class="pdf-container">
+                    <iframe src="https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/Resumen_Clase_8.pdf" title="Resumen Clase 8"></iframe>
+                </div>
+                <p class="url-text">URL: https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/Resumen_Clase_8.pdf</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Réplicas Estocásticas -->
+    <div class="slide">
+        <div class="slide-header">05. Slide Clave 1</div>
+        <div class="grid-asymmetric">
+            <div>
+                <h2>Réplicas Estocásticas</h2>
+                <p>Variabilidad intrínseca del azar. Una corrida es equivalente a un "lanzamiento de moneda".</p>
+                <div class="box">
+                    <h3>Definición</h3>
+                    <p>Ejecución independiente con semilla aleatoria distinta. <strong>Meta:</strong> Ejecutar múltiples (ej. 100) para formar una distribución robusta.</p>
+                </div>
+                <button id="btnModalReplica" class="btn-outline">Ver Detalle y Ejemplos</button>
+            </div>
+            <div>
+                <blockquote style="font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 300; line-height: 1.3; color: #1d4ed8; padding: 2rem; background: #eff6ff; border-radius: 8px;">
+                    "Sin réplicas, no hay ciencia, solo anécdotas."
+                </blockquote>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Precisión y Half Width -->
+    <div class="slide">
+        <div class="slide-header">06. Slide Clave 2</div>
+        <div class="grid-asymmetric">
+            <div>
+                <div class="graphic-container">
+                    <div style="font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; color: #0f172a;">[ 980 - 1020 ]</div>
+                    <p style="margin-top: 1rem; color: #64748b;">Margen de error aceptable</p>
+                </div>
+            </div>
+            <div>
+                <h2>Precisión y Half Width</h2>
+                <p>El <span class="text-accent">Intervalo de Confianza (Half Width)</span> mide la precisión del modelo estocástico.</p>
+                <div class="box">
+                    <h3>Interpretación Gerencial</h3>
+                    <p>Si el promedio es 1000 y el Intervalo de Confianza es del 95%, podemos afirmar estadísticamente que el resultado real está entre 980 y 1020.</p>
+                    <p><em>Dato técnico: A mayor número de réplicas, menor es el Half Width.</em></p>
+                </div>
+                <button id="btnModalHalfWidth" class="btn-outline">Ver Detalle y Ejemplos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Gráficos SMORE -->
+    <div class="slide">
+        <div class="slide-header">07. Slide Clave 3</div>
+        <div class="grid-asymmetric">
+            <div>
+                <h2>Gráficos SMORE</h2>
+                <p>Facilitar la comparación visual de escenarios con estadística robusta, evitando sesgos visuales.</p>
+                <div class="box">
+                    <h3>Regla de Decisión Estratégica</h3>
+                    <p>Si los intervalos de confianza (niveles "rust"/óxido) de dos escenarios se traslapan, <strong>no hay evidencia estadística</strong> de que uno sea mejor que el otro.</p>
+                </div>
+                <button id="btnModalSmore" class="btn-outline">Ver Detalle y Ejemplos</button>
+            </div>
+            <div class="graphic-container">
+                <div class="smore-bar"><div class="smore-mean"></div></div>
+                <div class="smore-bar" style="width: 70%; margin-left: 20%;"><div class="smore-mean" style="left: 40%;"></div></div>
+                <p style="position: absolute; bottom: 20px; font-size: 0.8rem; color: #64748b;">Intervalos traslapados = Empate Estadístico</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Gráfico de Tornado -->
+    <div class="slide">
+        <div class="slide-header">08. Slide Clave 4</div>
+        <div class="grid-asymmetric">
+            <div class="graphic-container" style="align-items: flex-start; padding-left: 10%;">
+                <div class="tornado-bar" style="width: 80%;">Tiempos de Proceso</div>
+                <div class="tornado-bar" style="width: 60%;">Costo Material</div>
+                <div class="tornado-bar" style="width: 40%;">Tasa de Llegada</div>
+                <div class="tornado-bar" style="width: 25%;">Turnos</div>
+            </div>
+            <div>
+                <h2>Análisis de Sensibilidad</h2>
+                <p>Gráfico de Tornado para identificar qué variables críticas mueven realmente la aguja (output).</p>
+                <div class="box">
+                    <h3>Uso Práctico</h3>
+                    <p>Priorización de esfuerzos e inversión en la recolección de datos.</p>
+                </div>
+                <div class="box-warning">
+                    <h3>Advertencia</h3>
+                    <p>Una pequeña variación en un input crítico puede alterar todo el Business Case.</p>
+                </div>
+                <button id="btnModalTornado" class="btn-outline">Ver Detalle y Ejemplos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Impacto Económico -->
+    <div class="slide">
+        <div class="slide-header">09. Slide Clave 5</div>
+        <div class="grid-asymmetric">
+            <div>
+                <h2>Impacto Económico</h2>
+                <p>Traducir métricas técnicas a lenguaje financiero. El modelo no está completo si no define el valor monetario de los "errores".</p>
+                <div class="box">
+                    <h3>Fórmula de Costo Sistémico</h3>
+                    <p style="font-family: monospace; font-size: 1rem; background: #e2e8f0; padding: 1rem; border-radius: 4px; margin-top: 0.5rem; word-break: break-word;">
+                        $Costo Total = Costo Maquinaria + Costo Laboral + Costo Inventario + Costo Errores$
+                    </p>
+                </div>
+            </div>
+            <div>
+                <div class="huge-number" style="color: #1e293b;">$</div>
+                <h3>Objetivo</h3>
+                <p>Optimizar el sistema bajo restricciones presupuestarias específicas del caso.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Taller Formativo -->
+    <div class="slide">
+        <div class="slide-header">10. Aplicación</div>
+        <div class="grid-asymmetric">
+            <div>
+                <h2>Taller Formativo</h2>
+                <p>Aplicar lo aprendido en un entorno práctico: Caso <strong>"Airport Check-in"</strong>.</p>
+                <div class="box">
+                    <h3>Entregable</h3>
+                    <p>Configuración de 10 réplicas y análisis del TIS (Time In System).</p>
+                    <a href="https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/TallerSemana8Formativo.pdf" target="_blank" class="link-btn">Descargar Guía Taller</a>
+                </div>
+                <div class="box-warning" style="border-left-color: #0f172a; background-color: #f8fafc;">
+                    <h3>Requisito de Cumplimiento</h3>
+                    <p>Debe completarse <strong>antes de la clase del 25 de abril</strong>. Incluye validación de media y Half Width.</p>
+                </div>
+            </div>
+            <div>
+                <div class="pdf-container">
+                    <iframe src="https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/TallerSemana8Formativo.pdf" title="Guía Taller Formativo"></iframe>
+                </div>
+                <p class="url-text">URL: https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/TallerSemana8Formativo.pdf</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles de Navegación -->
+    <div class="controls">
+        <button class="btn-nav" id="prevBtn" aria-label="Anterior">←</button>
+        <button class="btn-nav" id="nextBtn" aria-label="Siguiente">→</button>
+    </div>
+
+</div>
+
+<!-- ======================= -->
+<!-- V E N T A N A S   M O D A L E S -->
+<!-- ======================= -->
+
+<!-- VENTANA MODAL (SLIDE 05 - RÉPLICAS) -->
+<div class="modal-overlay" id="modalReplica">
+    <div class="modal-content">
+        <button class="close-btn closeModalBtn">&times;</button>
+        <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">Profundización: Réplicas</h2>
+        <div class="modal-body">
+            <p><strong>Concepto:</strong> Una réplica es la ejecución de un modelo de simulación utilizando una secuencia independiente y separada de números aleatorios. Dado que los sistemas del mundo real tienen variabilidad (son estocásticos), correr el modelo una sola vez es estadísticamente inválido, ya que solo te da un posible resultado aislado. Se necesitan múltiples réplicas independientes para calcular promedios reales y entender la incertidumbre.</p>
+            <p><strong>Ejemplo sencillo:</strong> Imagina que lanzas un dado una sola vez y sacas un 4; sería un error declarar que el promedio de ese dado siempre será 4. De la misma forma, no puedes simular las operaciones de un banco por un solo día. Debes simular "50 días distintos" (50 réplicas), cada uno con clientes llegando en diferentes tiempos al azar, para calcular promedios válidos.</p>
+        </div>
+    </div>
+</div>
+
+<!-- VENTANA MODAL (SLIDE 06 - HALF WIDTH) -->
+<div class="modal-overlay" id="modalHalfWidth">
+    <div class="modal-content">
+        <button class="close-btn closeModalBtn">&times;</button>
+        <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">Precisión y Half-width</h2>
+        <div class="modal-body">
+            <p><strong>Concepto:</strong> El Half-width (mitad del ancho) es el margen de error en un intervalo de confianza y es la principal medida de precisión en tu simulación. A medida que ejecutas más réplicas, este error muestral disminuye y la precisión aumenta, aunque para reducir el half-width a la mitad necesitas hacer aproximadamente cuatro veces más réplicas.</p>
+            <p><strong>Ejemplo sencillo:</strong> Supongamos que tu simulación calcula que el tiempo de espera en una fila es de 13.47 minutos &plusmn; 5.53 minutos. Ese valor de 5.53 es el Half-width. Esto significa que, con un 95% de confianza, el verdadero tiempo de espera promedio está entre 7.94 y 19 minutos. Si este margen te parece muy impreciso y amplio, debes correr más réplicas para reducir el Half-width y hacer que tu estimación sea más exacta.</p>
+        </div>
+    </div>
+</div>
+
+<!-- VENTANA MODAL (SLIDE 07 - SMORE) -->
+<div class="modal-overlay" id="modalSmore">
+    <div class="modal-content">
+        <button class="close-btn closeModalBtn">&times;</button>
+        <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">Gráficos SMORE (Simio Measure of Risk & Error)</h2>
+        <div class="modal-body">
+            <p><strong>Concepto:</strong> Son gráficos avanzados en Simio que combinan un diagrama de caja, un histograma y un gráfico de puntos a través de múltiples réplicas. Su propósito es ir más allá del simple "promedio" y mostrar de forma visual el riesgo y la variabilidad extrema de un sistema, incluyendo mínimos, máximos, la mediana, los percentiles y los intervalos de confianza de cada uno.</p>
+            <p><strong>Ejemplo sencillo:</strong> Si simulas un restaurante, el tiempo de espera promedio puede ser de 5 minutos. Sin embargo, el gráfico SMORE te mostrará visualmente el "riesgo", indicando con sus percentiles superiores y valores máximos que en el 25% de los escenarios los clientes llegan a esperar más de 30 minutos. También te mostrará bandas de confianza; si estas bandas son muy anchas, te indica visualmente que debes hacer más réplicas.</p>
+        </div>
+    </div>
+</div>
+
+<!-- VENTANA MODAL (SLIDE 08 - TORNADO) -->
+<div class="modal-overlay" id="modalTornado">
+    <div class="modal-content">
+        <button class="close-btn closeModalBtn">&times;</button>
+        <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">Gráficos de Tornado</h2>
+        <div class="modal-body">
+            <p><strong>Concepto:</strong> Es una herramienta visual de Análisis de Sensibilidad que utiliza regresión lineal interna para mostrar qué variables de entrada tienen el mayor impacto en los resultados del modelo. Se llama así porque ordena los parámetros de mayor a menor impacto, tomando la forma de un tornado. Las barras hacia la derecha indican una relación positiva (si sube la entrada, sube el resultado) y las barras a la izquierda una relación negativa.</p>
+            <p><strong>Ejemplo sencillo:</strong> Imagina una fábrica en donde quieres saber qué factores causan más congestión. El gráfico de tornado te mostrará una barra muy larga hacia la izquierda para el "tiempo entre llegadas de partes" (si las partes llegan más lento, el tiempo en el sistema disminuye) y una barra larga a la derecha para el "tiempo de proceso de la máquina" (si la máquina tarda más, la congestión aumenta). Esto te indica exactamente qué variable debes intentar mejorar en el mundo real.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const slides = document.querySelectorAll(".slide");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const container = document.getElementById("presentation");
+        let currentSlide = 0;
+
+        // Elementos Modales
+        const modals = document.querySelectorAll('.modal-overlay');
+        const closeBtns = document.querySelectorAll('.closeModalBtn');
+        
+        // Botones que abren los modales
+        const btnModalReplica = document.getElementById('btnModalReplica');
+        const modalReplica = document.getElementById('modalReplica');
+        
+        const btnModalHalfWidth = document.getElementById('btnModalHalfWidth');
+        const modalHalfWidth = document.getElementById('modalHalfWidth');
+
+        const btnModalSmore = document.getElementById('btnModalSmore');
+        const modalSmore = document.getElementById('modalSmore');
+
+        const btnModalTornado = document.getElementById('btnModalTornado');
+        const modalTornado = document.getElementById('modalTornado');
+
+        // ----- GESTIÓN DE SLIDES -----
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= slides.length) index = slides.length - 1;
+
+            slides.forEach((slide) => {
+                slide.classList.remove("active");
+                slide.scrollTop = 0; // resetear scroll al cambiar
+            });
+            
+            slides[index].classList.add("active");
+            currentSlide = index;
+
+            prevBtn.style.opacity = currentSlide === 0 ? "0.3" : "1";
+            nextBtn.style.opacity = currentSlide === slides.length - 1 ? "0.3" : "1";
+            prevBtn.style.cursor = currentSlide === 0 ? "default" : "pointer";
+            nextBtn.style.cursor = currentSlide === slides.length - 1 ? "default" : "pointer";
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) showSlide(currentSlide - 1);
+        }
+
+        nextBtn.addEventListener("click", nextSlide);
+        prevBtn.addEventListener("click", prevSlide);
+
+        // ----- GESTIÓN DE MODALES -----
+        function closeAllModals() {
+            modals.forEach(modal => modal.classList.remove('show'));
+        }
+
+        // Abrir modales específicos
+        btnModalReplica.addEventListener('click', () => modalReplica.classList.add('show'));
+        btnModalHalfWidth.addEventListener('click', () => modalHalfWidth.classList.add('show'));
+        btnModalSmore.addEventListener('click', () => modalSmore.classList.add('show'));
+        btnModalTornado.addEventListener('click', () => modalTornado.classList.add('show'));
+
+        // Cerrar modales con la 'X'
+        closeBtns.forEach(btn => btn.addEventListener('click', closeAllModals));
+
+        // Cerrar modales al hacer clic fuera del contenido
+        modals.forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeAllModals();
+                }
+            });
+        });
+
+        function isAnyModalOpen() {
+            return Array.from(modals).some(modal => modal.classList.contains('show'));
+        }
+
+        // ----- EVENTOS DE TECLADO Y SWIPE -----
+        document.addEventListener("keydown", (e) => {
+            // Si hay un modal abierto, interceptar teclas
+            if (isAnyModalOpen()) {
+                if (e.key === "Escape") closeAllModals();
+                return; // Evita cambiar de slide cuando la ventana está abierta
+            }
+
+            if (e.key === "ArrowRight" || e.key === " ") {
+                nextSlide();
+            } else if (e.key === "ArrowLeft") {
+                prevSlide();
+            }
+        });
+
+        // Prevenir que el scroll horizontal en móviles pase la diapositiva accidentalmente
+        let touchstartX = 0;
+        let touchendX = 0;
+        
+        container.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        });
+
+        container.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            // No hacer swipe si hay un modal abierto
+            if (isAnyModalOpen()) return;
+            
+            if (touchendX < touchstartX - 50) nextSlide();
+            if (touchendX > touchstartX + 50) prevSlide();
+        }
+
+        // Inicializar la presentación
+        showSlide(currentSlide);
+    });
+</script>
+
+</body>
+</html>
