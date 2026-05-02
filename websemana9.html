@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 9: Taller de Simulación - Movilidad Avanzada</title>
+    <!-- Importar tipografía Inter para un look arquitectónico y limpio -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           RESET & VARIABLES
+           ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #fcfcfc; /* Blanco/Gris muy claro */
+            --text-main: #111111; /* Negro casi puro */
+            --text-muted: #666666; /* Gris oscuro para cuerpo */
+            --border-color: #e0e0e0; /* Gris claro para líneas */
+            --accent-color: #000000;
+            --alert-red: #d00000; /* Rojo alerta minimalista */
+            --success-green: #111111; /* Usamos negro para el éxito para mantener el minimalismo */
+            --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            overflow-x: hidden;
+            overflow-y: auto; 
+            height: 100vh;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* =========================================
+           TYPOGRAPHY
+           ========================================= */
+        h1 {
+            font-weight: 300;
+            font-size: clamp(2.5rem, 4vw, 4.5rem);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+        }
+
+        h2 {
+            font-weight: 400;
+            font-size: clamp(1.5rem, 2vw, 2.5rem);
+            line-height: 1.3;
+            margin-bottom: 1.5rem;
+        }
+
+        p, li, div {
+            font-size: clamp(0.9rem, 1vw, 1.1rem);
+            line-height: 1.8;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        p { margin-bottom: 1.2rem; }
+        
+        ul {
+            list-style-type: none;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.6rem;
+            width: 6px;
+            height: 1px;
+            background-color: var(--text-main);
+        }
+
+        strong { font-weight: 600; color: var(--text-main); }
+
+        /* =========================================
+           LAYOUT & GRID
+           ========================================= */
+        .slide {
+            display: none;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; min-height: 100%;
+            padding: 6vw 4vw 6vw 4vw;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            background-color: var(--bg-color);
+        }
+
+        .slide.active {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: 1fr;
+            align-items: center;
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .slide-header {
+            position: absolute;
+            top: 3vw;
+            left: 4vw;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--text-main);
+            padding-bottom: 0.3rem;
+        }
+
+        .content-wrapper {
+            grid-column: 4 / 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper { grid-column: 3 / 11; }
+        }
+        @media (max-width: 768px) {
+            .content-wrapper { grid-column: 2 / 12; margin-top: 4rem; }
+            .slide-header { top: 1.5rem; left: 1.5rem; }
+            .slide { padding: 1.5rem; display: block; }
+            .slide.active { display: block; }
+        }
+
+        /* =========================================
+           UI ELEMENTS & CONTROLS
+           ========================================= */
+        .nav-controls {
+            position: fixed;
+            bottom: 3vw;
+            right: 4vw;
+            z-index: 100;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .counter {
+            position: fixed;
+            bottom: 3vw;
+            left: 4vw;
+            z-index: 100;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        button {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: var(--font-family);
+            border-radius: 0;
+        }
+
+        button:hover {
+            border-color: var(--text-main);
+            background: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        .btn-action {
+            align-self: flex-start;
+            margin-top: 1.5rem;
+        }
+
+        select, input[type="range"]:not(.comp-slider-input) {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            font-family: var(--font-family);
+            color: var(--text-main);
+            border-radius: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        select:focus { outline: none; border-color: var(--text-main); }
+
+        /* =========================================
+           SPECIFIC COMPONENTS (Slides 7, 8, 10-15)
+           ========================================= */
+        
+        /* Reveal Box */
+        .reveal-box {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f0f0f0;
+            border-left: 2px solid var(--text-main);
+            color: var(--text-main);
+        }
+
+        /* Iframe */
+        .iframe-container {
+            width: 100%; height: 50vh;
+            border: 1px solid var(--border-color);
+            margin-top: 2rem; background: #fff;
+        }
+
+        /* Hover Trigger */
+        .hover-trigger {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            border: 1px solid var(--border-color); background: var(--bg-color);
+            cursor: help; margin-top: 1rem; padding: 0.8rem 1.5rem;
+            color: var(--text-main); font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 0.05em; transition: all 0.3s ease;
+        }
+        .hover-trigger:hover { background: #f0f0f0; border-color: var(--text-main); }
+        .hover-content {
+            display: none; margin-top: 1rem; padding: 1.5rem;
+            background: #f5f5f5; border-left: 2px solid var(--text-main);
+            font-size: 0.9rem; animation: fadeIn 0.3s ease;
+        }
+        .hover-trigger:hover + .hover-content { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Slide 7: Comparison Slider */
+        .comparison-container {
+            position: relative; width: 100%; height: 250px;
+            margin-top: 2rem; border: 1px solid var(--border-color);
+            background: #fff; overflow: hidden;
+        }
+        .comp-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .comp-network { background: #fafafa; }
+        .comp-network-grid {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--border-color) 1px, transparent 1px), linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 20px 20px; opacity: 0.5;
+        }
+        .comp-freespace { background: #fcfcfc; clip-path: inset(0 50% 0 0); }
+        .comp-handle {
+            position: absolute; top: 0; left: 50%; width: 2px; height: 100%;
+            background: var(--text-main); transform: translateX(-50%);
+            pointer-events: none; z-index: 5;
+        }
+        .comp-handle-knob {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 28px; height: 28px; background: #fff;
+            border: 2px solid var(--text-main); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .comp-handle-knob::after { content: "↔"; font-size: 14px; color: var(--text-main); font-weight: bold; }
+        .comp-slider-input {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: ew-resize; margin: 0; z-index: 10;
+        }
+
+        /* Slide 8: Flowchart Animation */
+        .flowchart-container {
+            position: relative; display: flex; justify-content: space-between;
+            align-items: center; margin-top: 4rem; padding: 2rem 0; width: 100%;
+        }
+        .flow-line {
+            position: absolute; top: 50%; left: 0; width: 100%; height: 1px;
+            background: var(--border-color); z-index: 1;
+        }
+        .flow-node {
+            position: relative; z-index: 2; background: var(--bg-color);
+            border: 1px solid var(--text-main); padding: 0.8rem 1.5rem;
+            font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
+            letter-spacing: 0.1em; transition: all 0.3s ease;
+        }
+        .flow-node.active-node {
+            background: var(--text-main); color: var(--bg-color); transform: scale(1.05);
+        }
+        .token {
+            position: absolute; top: 50%; left: 0; transform: translate(-50%, -50%);
+            width: 12px; height: 12px; background: var(--text-main); border-radius: 50%;
+            z-index: 3; opacity: 0; transition: left 0.6s ease-in-out, opacity 0.3s ease;
+        }
+        .token-tooltip {
+            position: absolute; top: -3rem; left: 0; transform: translateX(-50%);
+            background: #f5f5f5; border: 1px solid var(--text-main); padding: 0.6rem 1rem;
+            font-size: 0.75rem; font-weight: 500; white-space: nowrap; opacity: 0;
+            transition: left 0.6s ease-in-out, opacity 0.3s ease; z-index: 4; color: var(--text-main);
+        }
+        .token-tooltip::after {
+            content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-main);
+        }
+
+        /* Slide 10: Trigger Graphic & Result */
+        .trigger-graphic {
+            border: 1px solid var(--border-color); padding: 1.5rem; margin-top: 2rem;
+            background: #fafafa; position: relative;
+        }
+        .trigger-graphic-header {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;
+        }
+        .trigger-result-box {
+            margin-top: 1rem; padding: 1rem; border-left: 2px solid var(--text-main);
+            background: #fff; font-family: monospace; font-size: 0.9rem; display: none;
+        }
+
+        /* Slide 11: Form Validation */
+        .form-group { margin-top: 1.5rem; position: relative; }
+        .form-label { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .feedback-icon {
+            position: absolute; right: 1rem; top: 2.5rem; font-weight: bold; font-size: 1.2rem; display: none;
+        }
+        .feedback-icon.error { color: var(--alert-red); display: block; }
+        .feedback-icon.success { color: var(--success-green); display: block; }
+
+        /* Slide 12: Routing Demo */
+        .routing-demo {
+            position: relative; width: 100%; height: 150px; border: 1px solid var(--border-color);
+            margin-top: 2rem; background: #fafafa;
+        }
+        .rd-server {
+            position: absolute; width: 60px; height: 60px; border: 1px solid var(--text-main);
+            display: flex; align-items: center; justify-content: center; font-weight: 600;
+            background: #fff;
+        }
+        .rd-server.a { top: 20px; right: 20px; }
+        .rd-server.b { bottom: 20px; right: 20px; }
+        .rd-vehicle {
+            position: absolute; top: 50%; left: 20px; transform: translateY(-50%);
+            width: 20px; height: 20px; background: var(--text-main);
+            transition: all 0.8s ease-in-out;
+        }
+
+        /* Slide 13: Pie Chart */
+        .pie-container {
+            display: flex; align-items: center; gap: 2rem; margin-top: 2rem;
+        }
+        .pie-svg { width: 150px; height: 150px; transform: rotate(-90deg); }
+        .pie-legend { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; }
+        .legend-item { display: flex; align-items: center; gap: 0.5rem; }
+        .legend-color { width: 12px; height: 12px; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border-bottom: 1px solid var(--border-color); padding: 1rem 0; text-align: left; font-size: 0.95rem; }
+        th { font-weight: 500; color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+    <!-- CONTROLES GLOBALES -->
+    <div class="counter" id="slide-counter">01 / 16</div>
+    <div class="nav-controls">
+        <button onclick="prevSlide()">Anterior</button>
+        <button onclick="nextSlide()">Siguiente</button>
+    </div>
+
+    <!-- ==========================================
+         SLIDES
+         ========================================== -->
+
+    <!-- SLIDE 1 -->
+    <section class="slide active" id="slide-1">
+        <div class="slide-header">01. INTRODUCCIÓN</div>
+        <div class="content-wrapper">
+            <h1>Movilidad Avanzada</h1>
+            <p><strong>Clase 9</strong> — Taller de Simulación</p>
+            <p><strong>Docente:</strong> Carlos Vergara</p>
+            <br>
+            <p><em>Propósito: Modelado de movilidad avanzada y personalización de procesos en SIMIO.</em></p>
+            <button class="btn-action" onclick="goToSlide(1)">Ver Agenda</button>
+        </div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide" id="slide-2">
+        <div class="slide-header">02. AGENDA</div>
+        <div class="content-wrapper">
+            <h1>Agenda de la clase</h1>
+            <ul>
+                <li>Activación de conocimientos previos (Paths y Tablas).</li>
+                <li>Introducción al objeto Vehicle.</li>
+                <li>Configuración de lógica de transporte.</li>
+                <li>El objeto Process: Más allá de los servidores fijos.</li>
+                <li>Pasos (Steps) y disparadores (Triggers).</li>
+                <li>Coordinación entre vehículos y procesos.</li>
+                <li>Taller Formativo: Caso de movilidad interna.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide" id="slide-3">
+        <div class="slide-header">03. ACTIVACIÓN</div>
+        <div class="content-wrapper">
+            <h1>Conocimientos Previos</h1>
+            <p>¿Qué diferencia un Path básico de un Conditional Path?</p>
+            <p>¿Cómo influye una Arrival Table en la demanda de un sistema?</p>
+            <button class="btn-action" onclick="document.getElementById('ans-s3').style.display='block'">Revelar Respuesta</button>
+            <div id="ans-s3" class="reveal-box">
+                El Conditional Path permite el flujo basado en lógica/prioridades, mientras que la Arrival Table define el volumen de entidades en el tiempo.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section class="slide" id="slide-4">
+        <div class="slide-header">04. MOTIVACIÓN</div>
+        <div class="content-wrapper">
+            <h1>Movilidad en la Industria</h1>
+            <p>Observa cómo la coordinación de recursos móviles optimiza procesos logísticos reales.</p>
+            <button class="btn-action" onclick="window.open('https://youtu.be/n4F8zhTyTC8', '_blank')">Ver Video Introductorio</button>
+        </div>
+    </section>
+
+    <!-- SLIDE 5 -->
+    <section class="slide" id="slide-5">
+        <div class="slide-header">05. MARCO TEÓRICO</div>
+        <div class="content-wrapper">
+            <h1>Referencia Técnica</h1>
+            <p>Revisión del material técnico de la semana.</p>
+            <iframe class="iframe-container" src="https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/Resumen%20Clase%209.pdf"></iframe>
+        </div>
+    </section>
+
+    <!-- SLIDE 6 -->
+    <section class="slide" id="slide-6">
+        <div class="slide-header">06. VEHICLE</div>
+        <div class="content-wrapper">
+            <h1>El Objeto Vehicle</h1>
+            <p>Recurso móvil que transporta entidades entre nodos.</p>
+            <ul>
+                <li>Posee capacidad de carga (Capacity) y velocidad propia.</li>
+                <li>Se rige por una lista de tareas o solicitudes dinámicas.</li>
+            </ul>
+            <div class="hover-trigger">
+                <span style="font-size: 1.2rem;">⤓</span> Pasa el cursor aquí para explorar Propiedades Clave
+            </div>
+            <div class="hover-content">
+                <strong>Propiedades:</strong> Capacity, Initial Speed, Routing Logic.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 7 -->
+    <section class="slide" id="slide-7">
+        <div class="slide-header">07. MODOS DE VIAJE</div>
+        <div class="content-wrapper">
+            <h1>Modos de Viaje (Travel Mode)</h1>
+            <p><strong>Network:</strong> El vehículo está "atado" a la red. Solo se mueve a través de Paths, Conveyors o Connectors. Útil para rutas fijas de camiones o pasillos de bodega.</p>
+            <p><strong>Free Space:</strong> El vehículo se mueve libremente en el plano X-Y-Z sin necesidad de caminos dibujados. Útil para drones o personas en espacios abiertos.</p>
+            
+            <div class="comparison-container">
+                <div class="comp-layer comp-network">
+                    <div class="comp-network-grid"></div>
+                    <div style="position: absolute; top: 1rem; right: 1rem; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.05em;">NETWORK</div>
+                    <div style="position: absolute; top: 20%; left: 15%; width: 2px; height: 60%; background: var(--text-muted);"></div>
+                    <div style="position: absolute; top: 80%; left: 15%; width: 65%; height: 2px; background: var(--text-muted);"></div>
+                    <div style="position: absolute; top: calc(20% - 4px); left: calc(15% - 4px); width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></div>
+                    <div style="position: absolute; top: calc(80% - 9px); left: calc(80% - 10px); width: 20px; height: 20px; background: var(--text-muted);"></div>
+                </div>
+                <div class="comp-layer comp-freespace" id="comp-freespace">
+                    <div style="position: absolute; top: 1rem; left: 1rem; font-size: 0.75rem; font-weight: 600; color: var(--text-main); letter-spacing: 0.05em;">FREE SPACE</div>
+                    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                        <line x1="15%" y1="20%" x2="80%" y2="80%" stroke="var(--text-main)" stroke-width="2" stroke-dasharray="6,6" />
+                    </svg>
+                    <div style="position: absolute; top: calc(20% - 4px); left: calc(15% - 4px); width: 10px; height: 10px; background: var(--text-main); border-radius: 50%;"></div>
+                    <div style="position: absolute; top: calc(80% - 9px); left: calc(80% - 10px); width: 20px; height: 20px; background: transparent; border: 2px solid var(--text-main);"></div>
+                </div>
+                <div class="comp-handle" id="comp-handle">
+                    <div class="comp-handle-knob"></div>
+                </div>
+                <input type="range" min="0" max="100" value="50" class="comp-slider-input" oninput="updateComparison(this.value)">
+            </div>
+            <p style="font-size: 0.75rem; text-align: center; margin-top: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Desliza para comparar rutas</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 8 -->
+    <section class="slide" id="slide-8">
+        <div class="slide-header">08. PROCESS</div>
+        <div class="content-wrapper">
+            <h1>Lógica de Proceso (Process)</h1>
+            <p><strong>No es un objeto físico</strong>, sino un conjunto de instrucciones lógicas.</p>
+            <p>Permite personalizar el comportamiento de los objetos estándar sin programar código complejo.</p>
+            <p>Se visualiza como un diagrama de flujo de "Tokens" (mensajeros lógicos).</p>
+            
+            <button class="btn-action" onclick="playTokenAnimation()">Ejecutar Flujo (Play)</button>
+            
+            <div class="flowchart-container" id="flowchart-container">
+                <div class="flow-line"></div>
+                <div class="flow-node" id="node-begin">Begin</div>
+                <div class="flow-node" id="node-assign">Assign</div>
+                <div class="flow-node" id="node-delay">Delay</div>
+                <div class="flow-node" id="node-end">End</div>
+                
+                <div class="token" id="flow-token"></div>
+                <div class="token-tooltip" id="token-tooltip"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 9 -->
+    <section class="slide" id="slide-9">
+        <div class="slide-header">09. STEPS</div>
+        <div class="content-wrapper">
+            <h1>Pasos Fundamentales</h1>
+            <p>Selecciona un paso para ver su sintaxis:</p>
+            <div style="margin-top: 2rem;">
+                <div class="syntax-row" onclick="showSyntax('Decide: Evalúa una condición (True/False).')">
+                    <div class="syntax-icon">D</div>
+                    <p style="margin:0;"><strong>Decide</strong></p>
+                </div>
+                <div class="syntax-row" onclick="showSyntax('Assign: Cambia el valor de una variable o propiedad.\n\nEjemplo de sintaxis:\nModelEntity.Priority = 1')">
+                    <div class="syntax-icon">A</div>
+                    <p style="margin:0;"><strong>Assign:</strong> Cambia el valor de una variable o propiedad.</p>
+                </div>
+                <div class="syntax-row" onclick="showSyntax('Delay: Detiene el proceso por un tiempo determinado.')">
+                    <div class="syntax-icon">T</div>
+                    <p style="margin:0;"><strong>Delay</strong></p>
+                </div>
+            </div>
+            <div class="syntax-display" id="syntax-display"></div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10 -->
+    <section class="slide" id="slide-10">
+        <div class="slide-header">10. TRIGGERS</div>
+        <div class="content-wrapper">
+            <h1>Disparadores (Add-on Process Triggers)</h1>
+            <p>Son "Ganchos" (Hooks) de eventos. SIMIO te pregunta: <em>"¿Quieres que haga algo extra cuando pase esto?"</em>.</p>
+            <ul>
+                <li><strong>On Entered:</strong> Se activa justo cuando la entidad entra al objeto.</li>
+                <li><strong>On Exited:</strong> Se activa al momento de salir.</li>
+                <li><strong>Loaded/Unloaded:</strong> Específicos para vehículos, se activan al terminar de cargar o descargar.</li>
+            </ul>
+            
+            <div class="trigger-graphic">
+                <div class="trigger-graphic-header">
+                    <span style="font-size: 1.2rem; margin-right: 0.5rem;">🔍</span> Propiedades del Servidor > Add-on Process Triggers
+                </div>
+                <label class="form-label">Selecciona un evento para crear el proceso:</label>
+                <select id="trigger-select" onchange="updateTriggerResult()">
+                    <option value="">-- Seleccionar Evento --</option>
+                    <option value="entered">On Entered</option>
+                    <option value="exited">On Exited</option>
+                    <option value="loaded">Loaded / Unloaded</option>
+                </select>
+                <div class="trigger-result-box" id="trigger-result"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 11 -->
+    <section class="slide" id="slide-11">
+        <div class="slide-header">11. REQUEST RIDE</div>
+        <div class="content-wrapper">
+            <h1>Coordinación: Request Ride</h1>
+            <p>Para que una entidad use un vehículo, el Nodo de Salida debe tener la orden. Configuración requerida:</p>
+            <ul>
+                <li><strong>Ride on Transporter:</strong> Setear en Always.</li>
+                <li><strong>Transporter Name:</strong> Seleccionar el nombre de su objeto Vehicle.</li>
+            </ul>
+            
+            <div style="border: 1px solid var(--border-color); padding: 1.5rem; margin-top: 2rem; background: #fafafa;">
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                    Simulación de Configuración (Nodo de Salida)
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ride on Transporter:</label>
+                    <select onchange="validateForm(this, 'Always')">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Never">Never</option>
+                        <option value="Always">Always</option>
+                        <option value="Conditional">Conditional</option>
+                    </select>
+                    <span class="feedback-icon"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Transporter Name:</label>
+                    <select onchange="validateForm(this, 'Vehicle1')">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Server1">Server1</option>
+                        <option value="Vehicle1">Vehicle1</option>
+                        <option value="Source1">Source1</option>
+                    </select>
+                    <span class="feedback-icon"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 12 -->
+    <section class="slide" id="slide-12">
+        <div class="slide-header">12. TABLAS</div>
+        <div class="content-wrapper">
+            <h1>Tablas y Prioridades de Tarea</h1>
+            <p>Cuando muchos nodos piden el mismo vehículo, ¿a quién va primero?</p>
+            <ul>
+                <li><strong>Work Matrix:</strong> Define el orden de atención. El vehículo prioriza según el valor en la tabla (ej: Prioridad 1 es mayor que Prioridad 10).</li>
+                <li><strong>Selection Rule:</strong> Propiedad del vehículo que indica si elige por "Distancia más corta" o "Mayor prioridad" según la matriz.</li>
+            </ul>
+            
+            <div style="display: flex; gap: 2rem; align-items: flex-start; margin-top: 1rem;">
+                <div style="flex: 1;">
+                    <table>
+                        <tr>
+                            <th>Servidor</th>
+                            <th>Prioridad</th>
+                        </tr>
+                        <tr>
+                            <td>Servidor A</td>
+                            <td>
+                                <select id="pri-a" onchange="updateRouting()" style="margin:0; padding: 0.5rem;">
+                                    <option value="1">1 (Alta)</option>
+                                    <option value="2" selected>2 (Baja)</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Servidor B</td>
+                            <td>
+                                <select id="pri-b" onchange="updateRouting()" style="margin:0; padding: 0.5rem;">
+                                    <option value="1" selected>1 (Alta)</option>
+                                    <option value="2">2 (Baja)</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="flex: 1;">
+                    <div class="routing-demo">
+                        <div class="rd-server a">A</div>
+                        <div class="rd-server b">B</div>
+                        <div class="rd-vehicle" id="rd-vehicle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 13 -->
+    <section class="slide" id="slide-13">
+        <div class="slide-header">13. VALIDACIÓN</div>
+        <div class="content-wrapper">
+            <h1>Validación: El Estado de Bloqueo (Blocked)</h1>
+            <p>Un vehículo entra en estado <strong>Blocked</strong> cuando ha terminado su transporte pero no puede descargar a la entidad.</p>
+            <ul>
+                <li><strong>Causa común:</strong> El servidor de destino o el nodo de transferencia está lleno (capacidad máxima alcanzada).</li>
+                <li><strong>Impacto:</strong> El vehículo queda inmovilizado, bloqueando pasillos y reduciendo la utilización efectiva del sistema.</li>
+            </ul>
+            
+            <div class="pie-container">
+                <svg viewBox="0 0 100 100" class="pie-svg">
+                    <!-- Fondo (Utilizado/Idle) -->
+                    <circle cx="50" cy="50" r="25" fill="transparent" stroke="var(--text-main)" stroke-width="50" />
+                    <!-- Sección Bloqueado (Rojo) -->
+                    <!-- Circunferencia = 2 * pi * 25 = 157.08 -->
+                    <circle cx="50" cy="50" r="25" fill="transparent" stroke="var(--alert-red)" stroke-width="50" stroke-dasharray="157.08" stroke-dashoffset="78.54" id="pie-blocked" style="transition: stroke-dashoffset 1s ease-in-out;" />
+                </svg>
+                <div class="pie-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--text-main);"></div>
+                        <span>Operativo / Idle</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--alert-red);"></div>
+                        <span>Blocked (<span id="blocked-pct">50</span>%)</span>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Capacidad Destino: <strong id="cap-dest">1</strong></span><br>
+                        <button class="btn-action" style="margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 0.7rem;" onclick="fixBlock()">Solucionar Bloqueo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 14 -->
+    <section class="slide" id="slide-14">
+        <div class="slide-header">14. TALLER</div>
+        <div class="content-wrapper">
+            <h1>Caso Bodega Central</h1>
+            <p><strong>Objetivo:</strong> Modelar un montacargas que mueva pallets desde Recepción a Almacenaje.</p>
+            <ul>
+                <li>Usar un Vehicle con capacidad 2.</li>
+                <li>Configurar el nodo de salida para Ride on Transporter.</li>
+                <li>Crear un Process con un Assign que cambie el color de la entidad al ser cargada.</li>
+            </ul>
+            <button class="btn-action" onclick="document.getElementById('pista-s14').style.display='block'">Ver Pista</button>
+            <div id="pista-s14" class="reveal-box">
+                Usa el Trigger 'Loaded' del objeto Vehicle.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 15 -->
+    <section class="slide" id="slide-15">
+        <div class="slide-header">15. CHECK</div>
+        <div class="content-wrapper">
+            <h1>Check de Salida (Activación Final)</h1>
+            <p>¿Qué Step usarías para cambiar la prioridad de una entidad a mitad de camino?</p>
+            <p>¿En qué propiedad del nodo se indica que una entidad requiere transporte?</p>
+            
+            <button class="btn-action" onclick="document.getElementById('ans-s15').style.display='block'">Revelar Respuestas y Pista</button>
+            
+            <div id="ans-s15" class="reveal-box">
+                <p><strong>Respuesta 1:</strong> Step Assign.</p>
+                <p><strong>Respuesta 2:</strong> Propiedad Ride on Transporter.</p>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1rem 0;">
+                <p style="margin-bottom: 0; font-size: 0.85rem;"><strong>Pista Pro:</strong> Para cambiar el color, usa el Step Assign con el estado <code>ModelEntity.CurrentSymbolIndex</code> (cambia el número del símbolo) o <code>ModelEntity.Picture</code> si usas archivos de imagen.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 16 -->
+    <section class="slide" id="slide-16">
+        <div class="slide-header">16. CIERRE</div>
+        <div class="content-wrapper">
+            <h2 style="font-size: clamp(1.8rem, 3vw, 3.5rem); line-height: 1.2; font-weight: 300; color: var(--text-main); margin-bottom: 0;">
+                "La simulación efectiva no solo mueve entidades, mueve decisiones estratégicas basadas en datos."
+            </h2>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         JAVASCRIPT LOGIC
+         ========================================== -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('slide-counter');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+            let num = (currentSlide + 1).toString().padStart(2, '0');
+            let total = slides.length.toString().padStart(2, '0');
+            counter.innerText = `${num} / ${total}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            if (index >= 0 && index < slides.length) {
+                currentSlide = index;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Slide 7: Slider Comparativo
+        function updateComparison(val) {
+            document.getElementById('comp-freespace').style.clipPath = `inset(0 ${100 - val}% 0 0)`;
+            document.getElementById('comp-handle').style.left = `${val}%`;
+        }
+
+        // Slide 8: Animación de Token en Diagrama de Flujo
+        let isAnimating = false;
+        function playTokenAnimation() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const token = document.getElementById('flow-token');
+            const tooltip = document.getElementById('token-tooltip');
+            const container = document.getElementById('flowchart-container');
+            const nodes =[
+                document.getElementById('node-begin'),
+                document.getElementById('node-assign'),
+                document.getElementById('node-delay'),
+                document.getElementById('node-end')
+            ];
+            
+            const messages =[
+                "Iniciando proceso (Token creado)",
+                "Cambiando prioridad de la entidad",
+                "Esperando tiempo definido...",
+                "Proceso finalizado (Token destruido)"
+            ];
+
+            nodes.forEach(n => n.classList.remove('active-node'));
+            token.style.transition = 'none';
+            tooltip.style.transition = 'none';
+            token.style.opacity = 0;
+            tooltip.style.opacity = 0;
+
+            void token.offsetWidth; // Force reflow
+
+            token.style.transition = 'left 0.6s ease-in-out, opacity 0.3s ease';
+            tooltip.style.transition = 'left 0.6s ease-in-out, opacity 0.3s ease';
+            
+            token.style.opacity = 1;
+            tooltip.style.opacity = 1;
+
+            let step = 0;
+
+            function nextStep() {
+                if (step >= nodes.length) {
+                    setTimeout(() => {
+                        token.style.opacity = 0;
+                        tooltip.style.opacity = 0;
+                        nodes[nodes.length - 1].classList.remove('active-node');
+                        isAnimating = false;
+                    }, 1000);
+                    return;
+                }
+
+                if (step > 0) {
+                    nodes[step - 1].classList.remove('active-node');
+                }
+
+                const targetNode = nodes[step];
+                targetNode.classList.add('active-node');
+
+                const containerRect = container.getBoundingClientRect();
+                const nodeRect = targetNode.getBoundingClientRect();
+                const relativeLeft = nodeRect.left - containerRect.left + (nodeRect.width / 2);
+                const percentageLeft = (relativeLeft / containerRect.width) * 100;
+
+                token.style.left = percentageLeft + '%';
+                tooltip.style.left = percentageLeft + '%';
+                tooltip.innerText = messages[step];
+
+                step++;
+                setTimeout(nextStep, 1500);
+            }
+            nextStep();
+        }
+
+        // Slide 9: Sintaxis
+        function showSyntax(text) {
+            const display = document.getElementById('syntax-display');
+            display.style.display = 'block';
+            display.innerText = text;
+        }
+
+        // Slide 10: Trigger Dropdown
+        function updateTriggerResult() {
+            const select = document.getElementById('trigger-select');
+            const resultBox = document.getElementById('trigger-result');
+            const val = select.value;
+            
+            if (val === "") {
+                resultBox.style.display = "none";
+                return;
+            }
+            
+            resultBox.style.display = "block";
+            if (val === "entered") {
+                resultBox.innerHTML = "Proceso a crear: <strong>Server1_Entered</strong>";
+            } else if (val === "exited") {
+                resultBox.innerHTML = "Proceso a crear: <strong>Server1_Exited</strong>";
+            } else if (val === "loaded") {
+                resultBox.innerHTML = "Proceso a crear: <strong>Vehicle1_Loaded</strong>";
+            }
+        }
+
+        // Slide 11: Form Validation
+        function validateForm(selectElement, correctValue) {
+            const icon = selectElement.nextElementSibling;
+            if (selectElement.value === "") {
+                icon.className = "feedback-icon";
+                icon.innerHTML = "";
+            } else if (selectElement.value === correctValue) {
+                icon.className = "feedback-icon success";
+                icon.innerHTML = "✓";
+            } else {
+                icon.className = "feedback-icon error";
+                icon.innerHTML = "✕";
+            }
+        }
+
+        // Slide 12: Routing Demo
+        function updateRouting() {
+            const priA = parseInt(document.getElementById('pri-a').value);
+            const priB = parseInt(document.getElementById('pri-b').value);
+            const vehicle = document.getElementById('rd-vehicle');
+            
+            // Prioridad 1 es mayor que 2. Si A es 1 y B es 2, va a A.
+            if (priA < priB) {
+                // Ir a A (arriba derecha)
+                vehicle.style.top = "30px";
+                vehicle.style.left = "calc(100% - 80px)";
+            } else if (priB < priA) {
+                // Ir a B (abajo derecha)
+                vehicle.style.top = "calc(100% - 50px)";
+                vehicle.style.left = "calc(100% - 80px)";
+            } else {
+                // Empate, se queda en el medio o vuelve al inicio
+                vehicle.style.top = "50%";
+                vehicle.style.left = "20px";
+            }
+        }
+        // Inicializar ruta
+        setTimeout(updateRouting, 500);
+
+        // Slide 13: Fix Blocked State
+        function fixBlock() {
+            const pie = document.getElementById('pie-blocked');
+            const pctText = document.getElementById('blocked-pct');
+            const capText = document.getElementById('cap-dest');
+            
+            // Cambiar offset para representar 10% en lugar de 50%
+            // 100% = 0, 50% = 78.54, 10% = 141.37
+            pie.style.strokeDashoffset = "141.37";
+            
+            // Animar números
+            pctText.innerText = "10";
+            capText.innerText = "5 (Aumentada)";
+            capText.style.color = "var(--success-green)";
+        }
+
+        // Inicializar
+        updateSlide();
+    </script>
+</body>
+</html>
