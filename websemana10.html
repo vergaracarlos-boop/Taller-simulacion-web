@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 10 - Taller de Simulación</title>
+    <style>
+        :root {
+            --primary: #0A2342; /* Azul marino */
+            --secondary: #173F70;
+            --accent: #E26D5C; /* Acento naranja/coral */
+            --bg-light: #F8F9FA;
+            --text-main: #333333;
+            --text-light: #FFFFFF;
+            --gray-light: #E0E0E0;
+            --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #000;
+            overflow: hidden; /* Prevent scrolling, handled by slides */
+            color: var(--text-main);
+        }
+
+        /* Presentation Container */
+        #presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Slide Base */
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 4rem 6rem;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-in-out;
+            background-color: var(--bg-light);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        h2 {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            border-left: 8px solid var(--accent);
+            padding-left: 1rem;
+            max-width: 80%; /* Title max 8 words visual constraint */
+        }
+
+        p {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Layouts */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            flex-grow: 1;
+            align-items: center;
+        }
+
+        .split-layout.asymmetric {
+            grid-template-columns: 1.5fr 1fr;
+        }
+
+        /* Lists & Fragments (Animation) */
+        ul {
+            list-style: none;
+        }
+
+        li {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 2.5rem;
+            line-height: 1.4;
+        }
+
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .fragment {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.4s ease;
+        }
+
+        .fragment.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Cards & Highlights */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--accent);
+        }
+
+        .card h3 {
+            color: var(--secondary);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .big-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Code & Variables */
+        .code-block {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.3rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            margin: 1rem 0;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Interactive / Buttons */
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .btn-reveal {
+            background-color: var(--accent);
+            margin-top: 2rem;
+        }
+
+        .hidden-answer {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem;
+            background-color: #E8F0FE;
+            border-radius: 8px;
+            border-left: 6px solid var(--primary);
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--primary);
+            animation: fadeIn 0.4s;
+        }
+
+        /* Image Placeholder styling */
+        .img-placeholder {
+            background-color: var(--gray-light);
+            border: 2px dashed #999;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            height: 100%;
+            min-height: 300px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Footer & Controls Info */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 40px;
+            right: 40px;
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .slide-counter {
+            font-weight: bold;
+        }
+
+        .controls-hint {
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .split-layout, .split-layout.asymmetric {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .slide {
+                padding: 2rem;
+                overflow-y: auto;
+            }
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+        }
+
+        /* Special Slides */
+        .title-slide {
+            background-color: var(--primary);
+            color: white;
+            text-align: left;
+            justify-content: center;
+        }
+        
+        .title-slide h1, .title-slide h2 {
+            color: white;
+            border: none;
+            padding: 0;
+        }
+        
+        .title-slide .accent-line {
+            width: 100px;
+            height: 8px;
+            background-color: var(--accent);
+            margin: 2rem 0;
+        }
+
+        .closing-slide {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="presentation-container">
+
+    <!-- 1. Título -->
+    <div class="slide title-slide">
+        <h2>Clase 10 | Taller de Simulación</h2>
+        <h1>Optimiza Flujos Complejos: Worker y Tally en Simio</h1>
+        <div class="accent-line"></div>
+        <p><strong>Profesor:</strong> Carlos Vergara</p>
+        <p><strong>Contacto:</strong> cvergarau@docente.uss.cl</p>
+        <p><strong>Modalidad:</strong> Advance Ingeniería Civil Industrial</p>
+    </div>
+
+    <!-- 2. Agenda -->
+    <div class="slide">
+        <h2>Agenda de Hoy: Ruta de Aprendizaje</h2>
+        <div class="split-layout">
+            <div>
+                <ul>
+                    <li class="fragment">1. Activación: Contexto logístico.</li>
+                    <li class="fragment">2. Video Introductorio Motivacional.</li>
+                    <li class="fragment">3. Análisis de Lectura Previa.</li>
+                    <li class="fragment">4. El objeto <strong>Worker</strong>: Más que transporte.</li>
+                    <li class="fragment">5. <strong>Tally Statistic</strong>: Precisión analítica.</li>
+                    <li class="fragment">6. Taller Formativo Práctico en Simio.</li>
+                </ul>
+            </div>
+            <div class="img-placeholder">
+                [Imagen: Iconografía 3D minimalista mostrando un engranaje, un cronómetro y un trabajador logístico conectados, paleta azul y naranja. Fondo transparente.]
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Activación 1 -->
+    <div class="slide">
+        <h2>Activación Rápida: Conceptos Previos</h2>
+        <div class="split-layout asymmetric">
+            <div>
+                <p>En clases anteriores trabajamos con entidades tipo <strong>Vehicle</strong> para transporte.</p>
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>Pregunta de Análisis:</h3>
+                    <p style="font-size: 1.8rem; font-weight: bold; color: var(--primary);">
+                        ¿Qué diferencia fundamental aporta un <span class="highlight">Worker</span> frente a un Vehicle convencional en Simio?
+                    </p>
+                    <button class="btn btn-reveal" onclick="revealElement('ans1')">Ver Respuesta</button>
+                </div>
+            </div>
+            <div>
+                <div id="ans1" class="hidden-answer">
+                    <strong>¡Exacto!</strong><br><br>
+                    A diferencia del Vehicle, el <strong>Worker</strong> puede:<br><br>
+                    ✓ Ejecutar procesos en servidores (capacidad de proceso).<br>
+                    ✓ Seguir turnos específicos (Work Schedules).<br>
+                    ✓ Caminar por nodos sin necesidad de rutas físicas estrictas.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Video Motivacional -->
+    <div class="slide">
+        <h2>El Desafío de la Congestión Logística</h2>
+        <div class="split-layout text-center" style="justify-content: center; text-align: center; display: flex; flex-direction: column;">
+            <p>Antes de modelar, entendamos el impacto real en la industria y cómo NotebookLM nos resume el problema de hoy.</p>
+            
+            <a href="https://youtu.be/_oSZUCP1gBU" target="_blank" class="btn" style="font-size: 2rem; padding: 2rem 4rem; margin-top: 2rem; border-radius: 50px;">
+                ▶ Reproducir Video Introductorio
+            </a>
+            <p style="margin-top: 1rem; font-size: 1.2rem; color: #666;">(Se abrirá en una nueva pestaña)</p>
+        </div>
+    </div>
+
+    <!-- 5. Lectura Previa -->
+    <div class="slide">
+        <h2>Revisión de Documento Base</h2>
+        <p>Conceptos fundamentales revisados en la lectura asincrónica preparatoria.</p>
+        <div style="width: 100%; height: 70vh; border: 2px solid var(--primary); border-radius: 8px; overflow: hidden;">
+            <iframe src="https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/Resumen_Clase_10.pdf" width="100%" height="100%" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <!-- 6. Contenido 1: Worker -->
+    <div class="slide">
+        <h2>Worker: Operador Multifuncional Inteligente</h2>
+        <div class="split-layout">
+            <div>
+                <p>El objeto Worker resuelve restricciones humanas en modelos de eventos discretos.</p>
+                <ul>
+                    <li class="fragment"><strong>Recurso de Proceso:</strong> Requerido por un Server para funcionar.</li>
+                    <li class="fragment"><strong>Agente de Transporte:</strong> Mueve entidades entre estaciones.</li>
+                    <li class="fragment"><strong>Gestión de Descansos:</strong> Integración directa con matrices de turnos.</li>
+                </ul>
+            </div>
+            <div class="img-placeholder">
+                [Imagen: Diagrama de flujo lógico mostrando un Worker interactuando simultáneamente con un Server (como operario) y un Path (como transportista). Estilo flat design.]
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Contenido 2: Worker en Server -->
+    <div class="slide">
+        <h2>Asignando Workers en Servidores</h2>
+        <div class="split-layout asymmetric">
+            <div>
+                <ul>
+                    <li class="fragment">Ir a las propiedades del Server.</li>
+                    <li class="fragment">Expandir <em>Secondary Resources</em>.</li>
+                    <li class="fragment">Configurar <strong>Resource for Processing</strong>.</li>
+                    <li class="fragment">Elegir el <em>Object Name</em> del Worker.</li>
+                </ul>
+            </div>
+            <div>
+                <div class="card">
+                    <h3>Atención al Detalle</h3>
+                    <p>El servidor <strong>no comenzará</strong> el <em>Processing Time</em> hasta que el Worker llegue al nodo de entrada.</p>
+                    <div class="code-block">
+                        Propiedad: Request Move<br>
+                        Valor: <span class="highlight">True</span> (Para que viaje al nodo)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Contenido 3: Tally Statistic -->
+    <div class="slide">
+        <h2>Tally Statistic: Más allá del reporte default</h2>
+        <div class="split-layout">
+            <div>
+                <p>Simio entrega estadísticas estándar, pero a veces necesitamos KPIs específicos del negocio.</p>
+                <div class="card-grid">
+                    <div class="card fragment">
+                        <span class="big-number">1</span>
+                        <h3>Medición Discreta</h3>
+                        <p>Registra valores puntuales (ej: tiempo de ciclo de una ruta específica).</p>
+                    </div>
+                    <div class="card fragment">
+                        <span class="big-number">2</span>
+                        <h3>Personalización</h3>
+                        <p>Permite analizar sub-procesos que los reportes globales ocultan.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="img-placeholder">
+                [Imagen: Gráfico de barras de desempeño con una lupa enfocando un dato específico, representando la captura de estadísticas precisas. Paleta corporativa.]
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Contenido 4: Implementación Tally -->
+    <div class="slide">
+        <h2>Cómo implementar un Tally en 3 pasos</h2>
+        <p>Integración en la lógica de procesos (Add-On Processes).</p>
+        <ul>
+            <li class="fragment"><strong>Paso 1:</strong> Crear el elemento <em>TallyStatistic</em> en la pestaña Definitions > Elements.</li>
+            <li class="fragment"><strong>Paso 2:</strong> En la pestaña Processes, insertar el paso <em>Tally</em> en el flujo lógico.</li>
+            <li class="fragment"><strong>Paso 3:</strong> Configurar el <em>Value Expression</em> (ej. tiempo actual menos tiempo de creación).</li>
+        </ul>
+        <div class="code-block fragment" style="margin-top: 2rem; width: 80%;">
+            Value Expression: <span class="highlight">TimeNow - ModelEntity.TimeCreated</span><br>
+            Tally Statistic Name: <span class="highlight">Tally_TiempoCiclo</span>
+        </div>
+    </div>
+
+    <!-- 10. Activación 2 -->
+    <div class="slide">
+        <h2>Activación Analítica: Midiendo la Espera</h2>
+        <div class="split-layout asymmetric">
+            <div>
+                <p>Imagina un sistema logístico donde el material llega rápido, pero el <strong>Worker</strong> tarda en buscarlo.</p>
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>Situación:</h3>
+                    <p style="font-size: 1.5rem; color: var(--primary);">
+                        Si necesitamos medir <strong>exactamente</strong> el tiempo que una entidad espera por la llegada del Worker al servidor, ¿cómo configuramos el Tally?
+                    </p>
+                    <button class="btn btn-reveal" onclick="revealElement('ans2')">Descubrir Lógica</button>
+                </div>
+            </div>
+            <div>
+                <div id="ans2" class="hidden-answer">
+                    <strong>Solución:</strong><br><br>
+                    1. Usamos un <em>Add-On Process</em> en el Server activado por <strong>"Processing"</strong> (cuando el Worker ya llegó y empieza a trabajar).<br><br>
+                    2. El Value Expression del Tally sería la diferencia entre el tiempo actual y el tiempo en que la entidad entró al servidor (guardado previamente con un paso <em>Assign</em>).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 11. Taller -->
+    <div class="slide">
+        <h2>Taller Formativo en Blackboard</h2>
+        <p>Te invito a visitar la plataforma <strong>Blackboard</strong> para realizar el taller formativo disponible en el curso. A continuación puedes revisar el enunciado:</p>
+        <div style="width: 100%; height: 60vh; border: 2px solid var(--primary); border-radius: 8px; overflow: hidden; margin-top: 1rem;">
+            <iframe src="https://vergaracarlos-boop.github.io/Taller-simulacion-web/docPDF/Taller_Formativo_Semana10.pdf" width="100%" height="100%" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <!-- 12. Cierre -->
+    <div class="slide closing-slide">
+        <h1 style="font-size: 4rem; margin-bottom: 2rem;">"La simulación no predice el futuro..."</h1>
+        <h2 style="color: var(--accent); border:none; padding:0; text-align: center; max-width: 100%;">
+            "...pero nos prepara con datos para controlarlo y mejorarlo."
+        </h2>
+        <p style="margin-top: 4rem; opacity: 0.8;">
+            Gracias por su participación. Completen el taller y suban su modelo.
+        </p>
+    </div>
+
+    <!-- Controles Footer -->
+    <div class="footer">
+        <div class="controls-hint">
+            Teclas: [Espacio/→] Siguiente | [←] Anterior | [1-9] Ir a slide | [F] Pantalla Completa
+        </div>
+        <div class="slide-counter">
+            <span id="current-slide-num">1</span> / <span id="total-slides">12</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Variables globales
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    document.getElementById('total-slides').innerText = totalSlides;
+
+    // Inicializar primera slide
+    slides[currentSlide].classList.add('active');
+    updateCounter();
+
+    // Función para cambiar de slide
+    function goToSlide(n) {
+        slides[currentSlide].classList.remove('active');
+        
+        // Manejar límites
+        currentSlide = (n + totalSlides) % totalSlides;
+        
+        slides[currentSlide].classList.add('active');
+        updateCounter();
+        resetFragments();
+    }
+
+    function nextSlide() {
+        // Verificar si hay fragmentos ocultos en la slide actual
+        const activeSlide = slides[currentSlide];
+        const hiddenFragments = activeSlide.querySelectorAll('.fragment:not(.visible)');
+        
+        if (hiddenFragments.length > 0) {
+            // Mostrar el siguiente fragmento
+            hiddenFragments[0].classList.add('visible');
+        } else {
+            // Si no hay fragmentos ocultos, pasar a la siguiente slide
+            if (currentSlide < totalSlides - 1) {
+                goToSlide(currentSlide + 1);
+            }
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            goToSlide(currentSlide - 1);
+        }
+    }
+
+    // Resetear animaciones al cambiar de slide
+    function resetFragments() {
+        const allFragments = document.querySelectorAll('.fragment');
+        allFragments.forEach(frag => frag.classList.remove('visible'));
+        
+        // Ocultar respuestas de activaciones
+        const answers = document.querySelectorAll('.hidden-answer');
+        answers.forEach(ans => ans.style.display = 'none');
+    }
+
+    // Actualizar contador
+    function updateCounter() {
+        document.getElementById('current-slide-num').innerText = currentSlide + 1;
+    }
+
+    // Función para botones de activación
+    window.revealElement = function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = 'block';
+        }
+    }
+
+    // Pantalla completa
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Error al intentar iniciar pantalla completa: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    // Event Listeners de Teclado
+    document.addEventListener('keydown', (e) => {
+        // Flecha derecha o Espacio
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault(); // Evitar scroll con espacio
+            nextSlide();
+        }
+        // Flecha izquierda
+        else if (e.key === 'ArrowLeft') {
+            prevSlide();
+        }
+        // Tecla F para fullscreen
+        else if (e.key.toLowerCase() === 'f') {
+            toggleFullScreen();
+        }
+        // Números para saltar a slide específica (1-9)
+        else if (e.key >= '1' && e.key <= '9') {
+            let targetSlide = parseInt(e.key) - 1;
+            if (targetSlide < totalSlides) {
+                goToSlide(targetSlide);
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
