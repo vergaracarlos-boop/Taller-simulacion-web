@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enunciado de Evaluación: Simulación Heladería Artesanal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header Corporativo -->
+    <header class="bg-slate-900 text-white py-6 px-4 sm:px-8 shadow-md border-b-4 border-yellow-500">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <span class="bg-yellow-500 text-slate-950 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Taller de Simulación</span>
+                <h1 class="text-2xl sm:text-3xl font-extrabold mt-2 tracking-tight">Evaluación Sumativa: Optimización en SIMIO</h1>
+                <p class="text-slate-400 text-sm mt-1">Caso de Negocio: Heladería Artesanal y Cuellos de Botella</p>
+            </div>
+            <div class="text-left md:text-right text-xs bg-slate-800/60 p-3 rounded-lg border border-slate-700 w-full md:w-auto">
+                <p><span class="font-bold text-yellow-500">RA Evaluado:</span> Analizar el comportamiento de un sistema productivo o de servicios a partir de resultados de simulación en SIMIO...</p>
+                <p class="mt-1 text-slate-400">Universidad San Sebastián · Escuela de Ingeniería</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navbar de Navegación del Enunciado -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto no-scrollbar py-2 gap-2">
+            <button onclick="switchTab('caso')" id="tab-caso" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white transition-all">
+                <i class="fa-solid fa-store mr-2"></i>1. Caso de Estudio
+            </button>
+            <button onclick="switchTab('parametros')" id="tab-parametros" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition-all">
+                <i class="fa-solid fa-calculator mr-2"></i>2. Datos Técnicos y Análisis
+            </button>
+            <button onclick="switchTab('instrucciones')" id="tab-instrucciones" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition-all">
+                <i class="fa-solid fa-list-check mr-2"></i>3. Instrucciones y Fases
+            </button>
+            <button onclick="switchTab('rubrica')" id="tab-rubrica" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition-all">
+                <i class="fa-solid fa-table-list mr-2"></i>4. Rúbrica de Evaluación
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-8">
+
+        <!-- TAB 1: CASO DE ESTUDIO -->
+        <section id="content-caso" class="tab-content block space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                        <i class="fa-solid fa-shop text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Contexto Operativo de la Heladería</h2>
+                </div>
+                
+                <p class="text-gray-600 leading-relaxed mb-6">
+                    Una concurrida heladería artesanal de alta demanda se encuentra en un proceso de reestructuración de su servicio de atención al cliente debido a un aumento sostenido en las quejas por tiempos excesivos de espera. Para diagnosticar e identificar soluciones de mejora, usted debe modelar, simular y optimizar el flujo de clientes utilizando la herramienta de simulación <strong class="text-blue-600">SIMIO</strong>.
+                </p>
+
+                <!-- Tarjeta del flujo del proceso -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative">
+                        <div class="absolute -top-3 left-4 bg-yellow-500 text-slate-900 text-xs font-extrabold px-2 py-0.5 rounded-md">Paso 1</div>
+                        <h3 class="font-bold text-gray-800 mt-2 mb-2"><i class="fa-solid fa-door-open mr-2 text-yellow-500"></i>Llegada de Clientes</h3>
+                        <p class="text-xs text-gray-600">Los clientes ingresan al local y se dirigen de manera secuencial por el sistema de atención.</p>
+                    </div>
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative">
+                        <div class="absolute -top-3 left-4 bg-yellow-500 text-slate-900 text-xs font-extrabold px-2 py-0.5 rounded-md">Paso 2</div>
+                        <h3 class="font-bold text-gray-800 mt-2 mb-2"><i class="fa-solid fa-cash-register mr-2 text-yellow-500"></i>Cajero (Servidor 1)</h3>
+                        <p class="text-xs text-gray-600">El cliente realiza el pago de su orden. Requiere capturar al operario de turno para procesar.</p>
+                    </div>
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative">
+                        <div class="absolute -top-3 left-4 bg-yellow-500 text-slate-900 text-xs font-extrabold px-2 py-0.5 rounded-md">Paso 3</div>
+                        <h3 class="font-bold text-gray-800 mt-2 mb-2"><i class="fa-solid fa-ice-cream mr-2 text-yellow-500"></i>Helador (Servidor 2)</h3>
+                        <p class="text-xs text-gray-600">Pasa a la barra donde se le sirve el helado y se retira definitivamente del sistema.</p>
+                    </div>
+                </div>
+
+                <div class="bg-red-50 border-l-4 border-red-500 p-5 rounded-r-xl">
+                    <h4 class="font-bold text-red-800 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Restricción de Recursos Requeridos (Línea Base)</h4>
+                    <p class="text-sm text-red-700 mt-1 leading-relaxed">
+                        El establecimiento opera bajo una modalidad de optimización de personal donde **un único recurso móvil (Worker) trabaja cubriendo ambos servidores**. Para que se inicie la atención en el *Cajero (S1)* o en el *Helador (S2)*, los servidores deben solicitar, capturar y posteriormente liberar a este recurso común. Su misión es modelar esta restricción física e identificar el comportamiento crítico de los cuellos de botella generados por esta configuración compartida.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Caja de objetivos del estudiante -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-4"><i class="fa-solid fa-bullseye text-blue-600 mr-2"></i>Objetivos Analíticos Clave</h3>
+                <ul class="space-y-3 text-sm text-gray-600">
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-green-500 mt-0.5"></i>
+                        <span><strong>Dominio del Software:</strong> Configurar correctamente los objetos Server, Queue y Sink de SIMIO asignándoles los tiempos estocásticos del caso de estudio.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-green-500 mt-0.5"></i>
+                        <span><strong>Traducción Conceptual:</strong> Traducir las restricciones operativas reales a procesos de captura y liberación de recursos móviles (Worker) compartidos.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-green-500 mt-0.5"></i>
+                        <span><strong>Verificación y Diseño de Experimentos:</strong> Diseñar un experimento formal (base vs. mejora) con un número de réplicas estadísticamente justificado para validar la mejora de agregar un segundo Worker independiente.</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- TAB 2: DATOS TÉCNICOS Y ANÁLISIS CONCEPTUAL -->
+        <section id="content-parametros" class="tab-content hidden space-y-6">
+            <!-- PARÁMETROS ESTADÍSTICOS -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-3 bg-yellow-100 text-yellow-600 rounded-xl">
+                        <i class="fa-solid fa-sliders text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Parámetros Estadísticos del Sistema</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Arribos -->
+                    <div class="border border-gray-200 p-5 rounded-xl bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>Entrellegadas de Clientes
+                        </h3>
+                        <div class="bg-blue-50 text-blue-700 text-xs font-mono p-2.5 rounded-lg mb-3">
+                            Random.Exponential(0.6) minutos
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Tiempo entre llegadas sucesivas de clientes. Determina la tasa promedio estocástica de entrada al local.
+                        </p>
+                    </div>
+
+                    <!-- Servicio Cajero -->
+                    <div class="border border-gray-200 p-5 rounded-xl bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>Servicio de Cajero (S1)
+                        </h3>
+                        <div class="bg-yellow-50 text-yellow-800 text-xs font-mono p-2.5 rounded-lg mb-3">
+                            Random.Triangular(0.4, 0.6, 0.7) minutos
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Tiempo estocástico de atención en caja registradora, definido con valores de mínimo, moda y máximo.
+                        </p>
+                    </div>
+
+                    <!-- Servicio Helador -->
+                    <div class="border border-gray-200 p-5 rounded-xl bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>Servicio de Helador (S2)
+                        </h3>
+                        <div class="bg-green-50 text-green-800 text-xs font-mono p-2.5 rounded-lg mb-3">
+                            Random.Triangular(0.5, 1.0, 1.2) minutos
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Tiempo estocástico de preparación y entrega del helado, definido con valores de mínimo, moda y máximo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GUÍA DE ORIENTACIÓN ANALÍTICA -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-blue-600"></i>Guía Metodológica: Variables Clave e Interpretación Esperada
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-1">Siga esta guía conceptual para enfocar el análisis del reporte técnico. Evite reportar datos descriptivos planos y concéntrese en el comportamiento del sistema.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                    <!-- Sección A: Qué Analizar en la Línea Base -->
+                    <div class="space-y-4 border-r border-gray-150 pr-0 md:pr-6">
+                        <h4 class="font-bold text-gray-800 flex items-center gap-2 text-base border-b pb-2">
+                            <i class="fa-solid fa-hourglass-half text-orange-500"></i>1. Dinámica de la Línea Base (Worker Único)
+                        </h4>
+                        <p class="text-gray-600 leading-relaxed text-xs">
+                            El análisis del escenario con un solo trabajador no se limita a evaluar las colas de manera aislada. El estudiante debe reflexionar sobre el fenómeno de <strong>interferencia mutua</strong> y responder a través de los datos de simulación:
+                        </p>
+                        <ul class="space-y-2.5 text-xs text-gray-600 pl-4 list-disc">
+                            <li><strong>Efecto de la secuencialidad:</strong> ¿Cómo impacta que la misma persona deba trasladarse del Cajero (S1) al Helador (S2) sobre los tiempos de espera de los clientes que aún no han pagado?</li>
+                            <li><strong>Estabilidad del sistema:</strong> Observe el comportamiento de las colas a lo largo del tiempo. ¿El sistema alcanza un estado estable o las filas tienden a crecer indefinidamente con la tasa de llegada propuesta? Justifique usando conceptos teóricos de teoría de colas.</li>
+                            <li><strong>Cuello de Botella real:</strong> Identifique si la congestión física se origina por las capacidades intrínsecas de los servidores o exclusivamente por la disponibilidad de la fuerza laboral compartida.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Sección B: Qué Analizar en la Propuesta -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-gray-800 flex items-center gap-2 text-base border-b pb-2">
+                            <i class="fa-solid fa-chart-line text-green-500"></i>2. Validación Científica de la Mejora
+                        </h4>
+                        <p class="text-gray-600 leading-relaxed text-xs">
+                            Al independizar las tareas agregando un segundo operario, el sistema cambia de naturaleza. El estudiante debe documentar y fundamentar este cambio basándose en evidencia estadística:
+                        </p>
+                        <ul class="space-y-2.5 text-xs text-gray-600 pl-4 list-disc">
+                            <li><strong>Desplazamiento del Cuello de Botella:</strong> Al liberar la restricción del Worker compartido, ¿hacia dónde se traslada el límite físico de la capacidad del sistema? Compare los niveles de utilización finales de S1 y S2.</li>
+                            <li><strong>Significancia Estadística:</strong> No declare que un escenario es mejor que otro basándose solo en un promedio puntual. Utilice la herramienta de experimentos de SIMIO para graficar y analizar los intervalos de confianza. Si los intervalos de las respuestas se superponen, ¿qué puede concluir sobre la mejora?</li>
+                            <li><strong>Sensibilidad y Variabilidad:</strong> Evalúe el impacto del número de réplicas. Justifique por qué un análisis de simulación estocástica requiere un número representativo de muestras para descartar eventos atípicos del generador de números aleatorios.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: INSTRUCCIONES Y FASES -->
+        <section id="content-instrucciones" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                        <i class="fa-solid fa-list-check text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Etapas y Requisitos de Entrega</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Fase 1 -->
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500 text-white font-bold flex items-center justify-center shrink-0">1</div>
+                        <div class="space-y-2">
+                            <h3 class="font-bold text-gray-800 text-base">Fase 1: Configuración Técnica y Línea Base</h3>
+                            <p class="text-sm text-gray-600">
+                                Construya en SIMIO el modelo de la heladería utilizando las propiedades estadísticas estocásticas provistas en la pestaña de datos técnicos. 
+                            </p>
+                            <p class="text-sm text-gray-600 font-semibold text-blue-600">
+                                Debe implementar procesos lógicos para que las entidades capturen (Seize) y liberen (Release) al mismo operario móvil (Worker) para procesar tanto en S1 como en S2.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Fase 2 -->
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500 text-white font-bold flex items-center justify-center shrink-0">2</div>
+                        <div class="space-y-2">
+                            <h3 class="font-bold text-gray-800 text-base">Fase 2: Identificación del Cuello de Botella (Análisis de 4 Variables)</h3>
+                            <p class="text-sm text-gray-600">
+                                Ejecute las corridas iniciales de prueba y realice un diagnóstico riguroso e interpretación fundamentada del sistema. Para asegurar el nivel de desempeño máximo según la rúbrica, es mandatorio que el informe documente y analice las siguientes <strong>4 variables de respuesta</strong>:
+                            </p>
+                            <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1 my-2">
+                                <li><strong>Tiempo total de la entidad en el sistema (Time in System):</strong> Analizar los tiempos totales promedio y sus dispersiones estocásticas.</li>
+                                <li><strong>Utilización del Cajero (S1):</strong> Desempeño porcentual y tiempos de espera en su respectiva fila.</li>
+                                <li><strong>Utilización del Helador (S2):</strong> Capacidad real aprovechada del servidor de entrega.</li>
+                                <li><strong>Utilización y estados del Recurso Móvil (Worker):</strong> Tiempo de traslado, estado de servicio y porcentaje de ocupación global.</li>
+                            </ul>
+                            <p class="text-sm text-gray-600">
+                                Con base en estas 4 variables, identifique y fundamente al menos <strong>3 patrones críticos u operativos</strong> que demuestren de qué forma el Worker único se convierte en el cuello de botella central del flujo de la heladería artesanal.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Fase 3 -->
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500 text-white font-bold flex items-center justify-center shrink-0">3</div>
+                        <div class="space-y-2">
+                            <h3 class="font-bold text-gray-800 text-base">Fase 3: Diseños de Experimentos y Mitigación de Variabilidad</h3>
+                            <p class="text-sm text-gray-600">
+                                En la pestaña de experimentos de SIMIO, diseñe y ejecute dos escenarios comparativos:
+                            </p>
+                            <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1 my-2">
+                                <li><strong>Escenario 0 (Línea Base):</strong> 1 Worker compartido por S1 y S2.</li>
+                                <li><strong>Escenario 1 (Mejora):</strong> Agregar un segundo Worker dedicado, independizando las estaciones de trabajo.</li>
+                            </ul>
+                            <p class="text-sm text-gray-600">
+                                Se requiere ejecutar un mínimo de **30 réplicas** en el experimento (con su respectiva justificación estadística de muestras). Compare las variables resultantes a través de intervalos de confianza o gráficos de error, y declare explícitamente la significancia estadística de la mejora antes de proponer recomendaciones.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Fase 4 -->
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500 text-white font-bold flex items-center justify-center shrink-0">4</div>
+                        <div class="space-y-2">
+                            <h3 class="font-bold text-gray-800 text-base">Fase 4: Reporte Técnico de Optimización</h3>
+                            <p class="text-sm text-gray-600">
+                                Elabore un informe que documente los supuestos de simulación aplicados, muestre evidencia gráfica del experimento de SIMIO y proponga al menos <strong>2 mejoras operativas específicas</strong> con justificación numérica robusta y viabilidad clara, evitando conclusiones vagas o genéricas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: RÚBRICA DE EVALUACIÓN -->
+        <section id="content-rubrica" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-3 bg-red-100 text-red-600 rounded-xl">
+                        <i class="fa-solid fa-award text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Rúbrica de Evaluación Analítica Oficial</h2>
+                </div>
+                <p class="text-xs text-gray-500 mb-6">Pauta analítica adaptada para la evaluación de competencias técnicas de simulación y toma de decisiones.</p>
+
+                <!-- Tabla de Rúbrica de Evaluación con 4 Niveles -->
+                <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
+                    <table class="w-full border-collapse text-left text-xs min-w-[950px]">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-gray-200">
+                                <th class="p-3.5 font-bold text-slate-700 w-[18%]">Criterio</th>
+                                <th class="p-3.5 font-bold text-green-700 w-[21%] bg-green-50/50">4 - Sobresaliente<br><span class="text-[10px] font-normal text-green-600">(100-90%)</span></th>
+                                <th class="p-3.5 font-bold text-blue-700 w-[21%] bg-blue-50/30">3 - Satisfactorio<br><span class="text-[10px] font-normal text-blue-600">(89-75%)</span></th>
+                                <th class="p-3.5 font-bold text-orange-700 w-[21%] bg-orange-50/30">2 - En desarrollo<br><span class="text-[10px] font-normal text-orange-600">(74-60%)</span></th>
+                                <th class="p-3.5 font-bold text-red-700 w-[19%] bg-red-50/30">1 - Insuficiente<br><span class="text-[10px] font-normal text-red-600">(&lt;60%)</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <!-- Criterio 1 -->
+                            <tr class="hover:bg-gray-50/30">
+                                <td class="p-4 bg-gray-50/40">
+                                    <div class="font-bold text-gray-900 text-sm">1. Configuración técnica</div>
+                                    <div class="text-[10px] font-medium text-slate-500 mt-1 uppercase">Poneración: 15%</div>
+                                    <div class="text-[11px] text-gray-600 mt-2 italic">Configura objetos de biblioteca y propiedades con coherencia, sin errores y documentado.</div>
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-green-50/10">
+                                    Configura <strong>todos</strong> los objetos requeridos (<code class="font-mono text-xs bg-slate-100 px-1">Server</code>, <code class="font-mono text-xs bg-slate-100 px-1">Queue</code>, <code class="font-mono text-xs bg-slate-100 px-1">Sink</code>) con propiedades completas y coherentes al caso; el modelo ejecuta <strong>sin errores ni warnings críticos</strong>; <strong>todos</strong> los parámetros clave están documentados internamente o en hoja adjunta.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed">
+                                    Configura la <strong>mayoría</strong> de los objetos requeridos con propiedades adecuadas; el modelo ejecuta con <strong>errores menores no críticos</strong>; la <strong>mayoría</strong> de los parámetros clave están documentados.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-orange-50/10">
+                                    Configura <strong>parcialmente</strong> los objetos; omite propiedades clave o usa valores incoherentes; el modelo presenta <strong>errores que requieren intervención manual</strong>; documentación incompleta.
+                                </td>
+                                <td class="p-4 text-gray-500 leading-relaxed bg-red-50/10">
+                                    <strong>No configura correctamente</strong> los objetos básicos; propiedades con valores erróneos o ausentes; el modelo <strong>no ejecuta</strong> o presenta errores críticos; <strong>sin documentación</strong> de parámetros.
+                                </td>
+                            </tr>
+                            
+                            <!-- Criterio 2 -->
+                            <tr class="hover:bg-gray-50/30">
+                                <td class="p-4 bg-gray-50/40">
+                                    <div class="font-bold text-gray-900 text-sm">2. Lógica de flujo</div>
+                                    <div class="text-[10px] font-medium text-slate-500 mt-1 uppercase">Poderación: 15%</div>
+                                    <div class="text-[11px] text-gray-600 mt-2 italic">Estructura rutas, reglas, prioridades y secuencias garantizando flujo coherente y transiciones válidas.</div>
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-green-50/10">
+                                    Estructura un flujo <strong>completo y coherente</strong>: rutas bien definidas, reglas y prioridades lógicas, secuencias alineadas al sistema real; <strong>sin bloqueos, bucles o cuellos de botella artificiales</strong>; entidades transitan <strong>fluidamente</strong> entre todas las estaciones.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed">
+                                    Estructura un flujo <strong>adecuado</strong>: rutas y reglas básicas definidas, secuencias mayormente coherentes; presenta <strong>errores menores de lógica</strong> que no bloquean el flujo principal; entidades transitan con intervenciones menores.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-orange-50/10">
+                                    Estructura un flujo <strong>parcial</strong>: omite rutas clave, reglas poco claras o inconsistentes; presenta <strong>bloqueos o bucles</strong> que requieren ajustes manuales; el flujo se <strong>interrumpe</strong> en estaciones críticas.
+                                </td>
+                                <td class="p-4 text-gray-500 leading-relaxed bg-red-50/10">
+                                    <strong>No estructura</strong> un flujo funcional: rutas ausentes o incorrectas, reglas inexistentes o erróneas; <strong>bloqueos críticos o bucles infinitos</strong>; las entidades <strong>no completan</strong> el recorrido esperado.
+                                </td>
+                            </tr>
+
+                            <!-- Criterio 3 (ESTRELLA - 50%) -->
+                            <tr class="hover:bg-gray-50/30 border-2 border-yellow-400">
+                                <td class="p-4 bg-yellow-50/40 relative">
+                                    <div class="absolute top-2 right-2 text-yellow-500 text-sm">
+                                        <i class="fa-solid fa-star"></i>
+                                    </div>
+                                    <div class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                                        3. Análisis de resultados<br>y fundamentación
+                                    </div>
+                                    <div class="text-[10px] font-extrabold text-yellow-700 mt-1 uppercase tracking-wide">Poderación: 50%</div>
+                                    <div class="text-[11px] text-slate-700 mt-2 italic font-medium">Interpreta variables, identifica patrones/cuellos de botella, vincula con teoría y propone mejoras justificadas.</div>
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-yellow-50/10">
+                                    Interpreta las <strong>4 variables</strong> de rendimiento identificando <strong>&ge;3 patrones críticos</strong>; vincula <strong>cada hallazgo explícitamente</strong> con conceptos teóricos o parámetros del modelo; propone <strong>&ge;2 mejoras</strong> con justificación numérica detallada y viabilidad clara; <strong>evita conclusiones genéricas</strong>.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed">
+                                    Interpreta las variables identificando <strong>2 patrones críticos</strong>; vincula <strong>la mayoría</strong> de hallazgos con la teoría; propone <strong>1 mejora</strong> con justificación basada en datos; análisis <strong>adecuado</strong> pero con <strong>profundidad limitada</strong> en alguna variable.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-orange-50/10">
+                                    Interpreta <strong>parcialmente</strong>: describe datos sin análisis crítico o identifica <strong>solo 1 patrón</strong>; vinculación con teoría <strong>vaga o ausente</strong>; propone mejora con justificación <strong>débil o genérica</strong>; conclusiones poco vinculadas a la evidencia.
+                                </td>
+                                <td class="p-4 text-gray-500 leading-relaxed bg-red-50/10">
+                                    <strong>Solo reporta</strong> tablas/gráficos sin interpretación; <strong>no identifica</strong> patrones operativos; conclusiones <strong>erróneas, contradictorias o ausentes</strong>; <strong>no propone</strong> mejoras o carecen totalmente de fundamento.
+                                </td>
+                            </tr>
+
+                            <!-- Criterio 4 -->
+                            <tr class="hover:bg-gray-50/30">
+                                <td class="p-4 bg-gray-50/40">
+                                    <div class="font-bold text-gray-900 text-sm">4. Experimentos</div>
+                                    <div class="text-[10px] font-medium text-slate-500 mt-1 uppercase">Poderación: 20%</div>
+                                    <div class="text-[11px] text-gray-600 mt-2 italic">Diseña escenarios comparativos (base vs mejora), ejecuta réplicas adecuadas, analiza IC y declara significancia.</div>
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-green-50/10">
+                                    Diseña <strong>&ge;2 escenarios bien diferenciados</strong> con parámetros especificados; ejecuta <strong>&ge;30 réplicas con justificación estadística</strong>; compara con <strong>intervalos de confianza o análisis de superposición</strong>; declara <strong>explícitamente significancia</strong> y vincula conclusión a recomendación.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed">
+                                    Diseña <strong>2 escenarios comparativos</strong> con parámetros definidos; ejecuta réplicas adecuadas <strong>(sin justificación estadística avanzada)</strong>; compara métricas <strong>visualmente o con promedios</strong>; concluye si hay mejora <strong>sin análisis explícito de significancia</strong>.
+                                </td>
+                                <td class="p-4 text-gray-600 leading-relaxed bg-orange-50/10">
+                                    Escenarios <strong>poco diferenciados</strong> o parámetros ambiguos; réplicas <strong>insuficientes sin justificación</strong>; comparación <strong>solo descriptiva</strong> ("el promedio subió"); conclusión <strong>genérica</strong> sin vincular a evidencia estadística.
+                                </td>
+                                <td class="p-4 text-gray-500 leading-relaxed bg-red-50/10">
+                                    <strong>No ejecuta</strong> experimentos comparativos, o los escenarios <strong>no permiten validar</strong> la mejora; resultados <strong>sin análisis comparativo</strong>; conclusión <strong>inexistente, errónea o desconectada</strong> de los datos.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white text-center py-4 text-xs border-t border-slate-800">
+        <p>&copy; 2026 Universidad San Sebastián · Taller de Simulación Avanzada</p>
+    </footer>
+
+    <!-- Scripts de Interacción de Pestañas -->
+    <script>
+        function switchTab(tabId) {
+            // Ocultar todos los contenidos de las pestañas
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            
+            // Mostrar la pestaña seleccionada
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('content-' + tabId).classList.add('block');
+
+            // Resetear estilos de los botones de las pestañas
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+            });
+
+            // Aplicar estilo activo al botón presionado
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            activeBtn.classList.add('bg-blue-600', 'text-white');
+        }
+    </script>
+</body>
+</html>
