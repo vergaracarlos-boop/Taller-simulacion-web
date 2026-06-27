@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rúbrica de Evaluación Solemne II</title>
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent: #3498db;
+      --selected: #ffd700;
+      --bg: #f8f9fa;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h1 { text-align: center; color: var(--primary); margin-bottom: 20px; }
+    .header-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .header-form input, .header-form textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .header-form textarea { grid-column: 1 / -1; resize: vertical; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+    }
+    td:first-child { font-weight: 600; background: #f1f3f5; }
+    td:last-child { text-align: center; font-weight: bold; }
+    .level-cell {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .level-cell:hover { background: #e9ecef; }
+    .level-cell.selected {
+      background: var(--selected) !important;
+      border-left: 4px solid #e6a800;
+      font-weight: 500;
+    }
+    .summary-panel {
+      background: #e8f4fc;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .summary-panel h2 { margin: 5px 0; color: var(--primary); }
+    .grade-display {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: var(--accent);
+      margin: 10px 0;
+    }
+    button#generate-pdf {
+      padding: 12px 30px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button#generate-pdf:hover { background: #219150; }
+    
+    /* Estilos ocultos solo para el PDF */
+    #pdf-report { display: none; padding: 30px; font-family: Arial, sans-serif; color: #000; }
+    #pdf-report h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+    #pdf-report table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    #pdf-report th, #pdf-report td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; }
+    #pdf-report .meta { margin-bottom: 20px; }
+    #pdf-report .results { background: #f5f5f5; padding: 15px; border-radius: 5px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="main-ui">
+    <h1>📋 Rúbrica de Evaluación Solemne II</h1>
+    
+    <div class="header-form">
+      <input type="text" id="student1" placeholder="Nombre Estudiante 1">
+      <input type="text" id="student2" placeholder="Nombre Estudiante 2">
+      <textarea id="observations" rows="3" placeholder="Observaciones adicionales del evaluador..."></textarea>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 20%;">Criterio de Evaluación</th>
+          <th style="width: 25%;">Excelente (Logrado Absoluto)</th>
+          <th style="width: 25%;">Competente (Logrado Parcial)</th>
+          <th style="width: 25%;">Insuficiente (No Logrado)</th>
+          <th style="width: 5%;">Peso (pts)</th>
+        </tr>
+      </thead>
+      <tbody id="rubric-body">
+        <!-- Generado por JS -->
+      </tbody>
+    </table>
+
+    <div class="summary-panel">
+      <h2>Puntaje Acumulado</h2>
+      <div class="grade-display">
+        <span id="total-points">0.0</span> / 100 pts
+      </div>
+      <div style="margin-top: 5px; font-size: 1.1em;">
+        Nota Final: <strong id="final-grade" style="font-size: 1.4em; color: #2980b9;">1.0</strong>
+      </div>
+      <br>
+      <button id="generate-pdf" onclick="generatePDF()">📄 Generar Informe PDF</button>
+    </div>
+  </div>
+
+  <!-- Plantilla oculta para el reporte PDF -->
+  <div id="pdf-report">
+    <h1>Informe de Evaluación - Solemne II</h1>
+    <div class="meta">
+      <p><strong>Estudiante(s):</strong> <span id="pdf-students"></span></p>
+      <p><strong>Fecha de Evaluación:</strong> <span id="pdf-date"></span></p>
+    </div>
+    <div id="pdf-table-container"></div>
+    <div class="results">
+      <h3>Resultados Finales</h3>
+      <p><strong>Puntaje Total:</strong> <span id="pdf-points"></span> / 100 pts</p>
+      <p><strong>Nota Final (Escala Chilena):</strong> <span id="pdf-grade"></span></p>
+      <p><strong>Observaciones:</strong> <br><span id="pdf-obs" style="font-style: italic; margin-top: 5px; display: block; border-top: 1px solid #999; padding-top: 5px;"></span></p>
+    </div>
+    <p style="text-align: center; margin-top: 30px; font-size: 10px; color: #666;">Documento generado automáticamente por la herramienta de evaluación.</p>
+  </div>
+
+  <!-- Librería para generar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <script>
+    // Datos de la rúbrica
+    const rubricData = [
+      {
+        id: 'c1', weight: 30,
+        name: 'Coherencia y Carpintería del Modelo Base (Simio)',
+        levels: {
+          exc: 'El archivo .spfx implementa a la perfección todas las restricciones: tablas de mezcla, secuencias, pallets, uso correcto de grúas e interacción del Worker, sin errores ni advertencias.',
+          comp: 'El modelo funciona y corre el turno de 8h, pero presenta errores conceptuales menores: confusión en nodos del Separator, entidades Retail entran por error a empaque, o el Worker transporta pero no bloquea el procesamiento.',
+          ins: 'El modelo no ejecuta la corrida por errores críticos de sintaxis, faltan componentes troncales (Workers/Vehicles), o el flujo estocástico no coincide con los parámetros del CD.'
+        }
+      },
+      {
+        id: 'c2', weight: 15,
+        name: 'Lógica Condicional de Multas y SLA',
+        levels: {
+          exc: 'Configura impecablemente la variable de estado global y la asignación condicional en el evento de entrada al Sink. Registra con exactitud matemática la penalización de $5.000 CLP exclusivamente para Ent_Ecommerce > 45 min.',
+          comp: 'La variable acumula costos, pero tiene fallas: aplica la multa a Retail indiscriminadamente, usa valores fijos sin verificar TimeInSystem real, o no convierte correctamente las unidades de tiempo.',
+          ins: 'No existe registro de costos por penalización, no se definieron variables globales, o el contador no se activa con los disparadores lógicos al finalizar el proceso.'
+        }
+      },
+      {
+        id: 'c3', weight: 15,
+        name: 'Análisis Estadístico y Diagnóstico (Eje 1)',
+        levels: {
+          exc: 'Calcula rigor estadístico de 15 réplicas usando IC y Half-Width. Identifica con evidencia numérica que el cuello de botella es la tasa de utilización por transporte del Worker, no la capacidad del Server.',
+          comp: 'Identifica el área de congestión, pero el análisis es superficial: transcribe datos sin interpretar el IC, o culpa al Server de Picking basándose solo en el largo visual de la cola.',
+          ins: 'No presenta análisis estadístico, carece de interpretación de IC/réplicas, y el diagnóstico del cuello de botella no tiene respaldo de datos ni métricas del software.'
+        }
+      },
+      {
+        id: 'c4', weight: 20,
+        name: 'Diseño Proactivo de Optimización Gráfica (Eje 2)',
+        levels: {
+          exc: 'Propuesta original y efectiva que reduce el ciclo bajo restricciones. Demuestra mejora científicamente analizando overlap y dispersión de riesgo en gráficos SMORE.',
+          comp: 'Implementa escenario que disminuye tiempos, pero el análisis gráfico es débil: no justifica percentiles de riesgo, supera presupuesto de $50.000 CLP/hora, o usa lógicas no vistas.',
+          ins: 'Propuesta inexistente, no hay escenarios alternativos, o la solución destruye la lógica operativa del negocio y carece de análisis gráfico SMORE.'
+        }
+      },
+      {
+        id: 'c5', weight: 20,
+        name: 'Evaluación Económica y Decisión de Ingeniería (Eje 3)',
+        levels: {
+          exc: 'Ecuación de Costo Total correcta para todos los escenarios. Análisis económico nítido beneficio/costo, contrastando inversión vs ahorro en multas, con recomendación gerencial robusta.',
+          comp: 'Construye tabla de costos, pero comete errores en tasas horarias fijas (ej: no multiplica por 8h) o la decisión final carece de argumentos económicos fundamentados.',
+          ins: 'No incluye evaluación económica, ignora estructura de costos de gerencia, o la recomendación se basa en apreciaciones cualitativas sin respaldo monetario/matemático.'
+        }
+      }
+    ];
+
+    // Mapeo de niveles a puntaje (ajustable según política del curso)
+    const levelMultipliers = { exc: 1.0, comp: 0.6, ins: 0.0 };
+    let selections = {};
+
+    // Renderizar tabla
+    function renderRubric() {
+      const tbody = document.getElementById('rubric-body');
+      rubricData.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${c.name}</td>
+          <td class="level-cell" data-cid="${c.id}" data-lvl="exc" onclick="selectLevel(this)">${c.levels.exc}</td>
+          <td class="level-cell" data-cid="${c.id}" data-lvl="comp" onclick="selectLevel(this)">${c.levels.comp}</td>
+          <td class="level-cell" data-cid="${c.id}" data-lvl="ins" onclick="selectLevel(this)">${c.levels.ins}</td>
+          <td>${c.weight}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Manejar clic en nivel
+    function selectLevel(el) {
+      const cid = el.dataset.cid;
+      // Quitar selección previa en la misma fila
+      el.parentElement.querySelectorAll('.level-cell').forEach(cell => cell.classList.remove('selected'));
+      // Aplicar nueva
+      el.classList.add('selected');
+      selections[cid] = el.dataset.lvl;
+      calculateScore();
+    }
+
+    // Calcular puntaje y nota
+    function calculateScore() {
+      let total = 0;
+      rubricData.forEach(c => {
+        if (selections[c.id]) {
+          total += c.weight * levelMultipliers[selections[c.id]];
+        }
+      });
+      
+      // Limitar a 100 y redondear a 1 decimal
+      total = Math.min(total, 100);
+      document.getElementById('total-points').textContent = total.toFixed(1);
+      
+      const grade = calculateChileanGrade(total);
+      document.getElementById('final-grade').textContent = grade.toFixed(1);
+    }
+
+    // Fórmula Chilena: (0,1), (60,4), (100,7)
+    function calculateChileanGrade(x) {
+      if (x < 0) x = 0;
+      if (x > 100) x = 100;
+      if (x <= 60) {
+        return 1 + (3 / 60) * x;
+      } else {
+        return 4 + (3 / 40) * (x - 60);
+      }
+    }
+
+    // Generar PDF
+    function generatePDF() {
+      if (!confirm('¿Generar informe PDF con los datos actuales?')) return;
+
+      // Llenar datos del reporte
+      const s1 = document.getElementById('student1').value || 'Estudiante 1';
+      const s2 = document.getElementById('student2').value || 'Estudiante 2';
+      document.getElementById('pdf-students').textContent = `${s1} / ${s2}`;
+      document.getElementById('pdf-date').textContent = new Date().toLocaleDateString('es-CL');
+      document.getElementById('pdf-points').textContent = document.getElementById('total-points').textContent;
+      document.getElementById('pdf-grade').textContent = document.getElementById('final-grade').textContent;
+      document.getElementById('pdf-obs').textContent = document.getElementById('observations').value || 'Sin observaciones.';
+
+      // Construir tabla resumen para PDF
+      let tableHTML = `<table>
+        <thead><tr><th>Criterio</th><th>Nivel Asignado</th><th>Puntaje Obtenido</th><th>Peso Máximo</th></tr></thead><tbody>`;
+      rubricData.forEach(c => {
+        const lvl = selections[c.id] || 'no_seleccionado';
+        const lvlName = lvl === 'exc' ? 'Excelente' : lvl === 'comp' ? 'Competente' : lvl === 'ins' ? 'Insuficiente' : 'No evaluado';
+        const pts = selections[c.id] ? (c.weight * levelMultipliers[selections[c.id]]).toFixed(1) : '0.0';
+        tableHTML += `<tr>
+          <td>${c.name}</td>
+          <td>${lvlName}</td>
+          <td style="text-align:center;">${pts}</td>
+          <td style="text-align:center;">${c.weight}</td>
+        </tr>`;
+      });
+      tableHTML += `</tbody></table>`;
+      document.getElementById('pdf-table-container').innerHTML = tableHTML;
+
+      // Mostrar temporalmente para renderizado
+      const pdfDiv = document.getElementById('pdf-report');
+      pdfDiv.style.display = 'block';
+      document.body.appendChild(pdfDiv);
+
+      const opt = {
+        margin: 0.5,
+        filename: `Evaluacion_${s1.replace(/\s+/g, '_')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(pdfDiv).save().then(() => {
+        pdfDiv.style.display = 'none'; // Ocultar tras descarga
+      });
+    }
+
+    // Inicializar
+    renderRubric();
+  </script>
+</body>
+</html>
