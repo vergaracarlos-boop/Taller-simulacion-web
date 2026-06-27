@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducción a Montecarlo: Estimación de Pi por Lanzamiento de Dardos</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Polyfill para renderizar LaTeX de forma estándar y segura -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+    <!-- Header / Navbar Principal -->
+    <header class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="bg-indigo-500/20 text-indigo-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Clase 2: Introducción a Montecarlo
+                    </span>
+                    <h1 class="text-3xl font-extrabold tracking-tight mt-2">
+                        Aproximación de $\pi$ mediante Lanzamiento de Dardos
+                    </h1>
+                    <p class="text-slate-300 text-sm mt-1">
+                        Estudio empírico de la Ley de los Grandes Números y la calidad estocástica de los generadores
+                    </p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-lg border border-white/10 text-right md:min-w-[180px]">
+                    <span class="block text-xs text-slate-300 uppercase font-medium">Laboratorio Activo</span>
+                    <span class="text-base font-bold text-indigo-200">Excel + Simulación Visual</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        
+        <!-- Fila de Marco Teórico y Laboratorio Interactivo -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            
+            <!-- Columna de Fundamento Matemático (1/3) -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-full flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-950 mb-3 flex items-center gap-2">
+                            <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>
+                            Fundamento Matemático
+                        </h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">
+                            Considere un cuadrado de lado $L = 1$, con un área de $A_{cuad} = 1$. Inscribimos un cuarto de círculo de radio $R = 1$ en su interior.
+                        </p>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">
+                            El área de este sector circular es:
+                            $$A_{sec} = \frac{\pi \cdot R^2}{4} = \frac{\pi}{4}$$
+                        </p>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">
+                            Si lanzamos aleatoriamente un gran número de "dardos" sobre el cuadrado, la probabilidad $P$ de que un dardo caiga dentro del sector circular es proporcional a la razón de sus áreas:
+                            $$P = \frac{A_{sec}}{A_{cuad}} = \frac{\pi}{4}$$
+                        </p>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">
+                            Por lo tanto, la estimación de $\pi$ para un número de corridas $N$ con un número de éxitos en el círculo $N_{in}$ se calcula como:
+                            $$\pi \approx 4 \cdot \frac{N_{in}}{N}$$
+                        </p>
+                    </div>
+                    
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-xs text-indigo-950">
+                        <span class="font-bold">Ley de los Grandes Números:</span>
+                        A medida que el número de lanzamientos $N \to \infty$, el promedio muestral converge de manera absoluta al valor real esperado de $\pi \approx 3.14159$.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna de la Aplicación Simuladora (2/3) -->
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                            <h3 class="text-lg font-bold text-slate-950 flex items-center gap-2">
+                                <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>
+                                Simulador Interactivo USS Montecarlo
+                            </h3>
+                            <div class="flex gap-2">
+                                <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-medium border border-slate-200" id="generator-badge">Generador: Excel Nativo</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <!-- Canvas de Visualización -->
+                            <div class="md:col-span-6 flex justify-center">
+                                <div class="relative w-64 h-64 bg-slate-100 rounded-xl border border-slate-200 overflow-hidden shadow-inner flex items-center justify-center">
+                                    <canvas id="dartboard" class="absolute top-0 left-0 w-full h-full"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Panel de Control y Estadísticas en Vivo -->
+                            <div class="md:col-span-6 space-y-4">
+                                <div class="grid grid-cols-2 gap-3 text-center">
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Lanzamientos (N)</span>
+                                        <span class="text-lg font-extrabold text-slate-900" id="stat-total">0</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">En el Círculo (Nin)</span>
+                                        <span class="text-lg font-extrabold text-indigo-600" id="stat-inside">0</span>
+                                    </div>
+                                    <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100 col-span-2">
+                                        <span class="text-[11px] text-indigo-700 font-bold uppercase tracking-wider block">Valor Estimado de $\pi$</span>
+                                        <span class="text-3xl font-black text-indigo-950 tracking-tight" id="stat-pi">0.0000</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900 flex justify-between items-center">
+                                    <span><strong>Error Absoluto:</strong> <span id="stat-error">0.00%</span></span>
+                                    <span class="text-slate-400">|</span>
+                                    <span><strong>Valor Real:</strong> 3.14159...</span>
+                                </div>
+
+                                <!-- Selector de Generadores -->
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                    <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Seleccionar Generador:</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button onclick="setGenerator('native')" id="btn-gen-native" class="bg-indigo-600 text-white text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition">
+                                            Nativo (Uniforme)
+                                        </button>
+                                        <button onclick="setGenerator('lcg')" id="btn-gen-lcg" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition">
+                                            LCG Defectuoso
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botonera Operativa -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-6">
+                        <button onclick="addDarts(1)" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition">
+                            +1 Dardo
+                        </button>
+                        <button onclick="addDarts(100)" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition">
+                            +100 Dardos
+                        </button>
+                        <button onclick="addDarts(1000)" class="bg-indigo-800 hover:bg-indigo-900 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition">
+                            +1.000 Dardos
+                        </button>
+                        <button onclick="resetSimulation()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold py-2.5 px-4 rounded-xl border border-rose-200 transition">
+                            Reiniciar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Secciones Guía de Taller -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Columna del Taller Excel (2/3) -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Sección de Instrucciones de Excel -->
+                <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-slate-900 rounded-full"></span>
+                        Guía de Implementación Paso a Paso en Excel
+                    </h2>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        Siga estas instrucciones para construir de forma autónoma el simulador de Montecarlo en su planilla Excel de Microsoft Office. Simularemos un total de <strong>500 tiros</strong> para evaluar la convergencia.
+                    </p>
+
+                    <div class="space-y-6">
+                        <!-- Paso 1 -->
+                        <div class="flex gap-4 items-start text-sm">
+                            <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-slate-950">Generar las coordenadas $X$ e $Y$ de los dardos</h4>
+                                <p class="text-slate-600 text-xs leading-relaxed">
+                                    En la fila 2 de su planilla, configure la estructura de lanzamiento. En las columnas de coordenadas, utilice el generador aleatorio uniforme estándar de Excel:
+                                </p>
+                                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-800 space-y-1 mt-2">
+                                    <div><strong>Celda B2 (Coordenada X):</strong> <code>=ALEATORIO()</code></div>
+                                    <div><strong>Celda C2 (Coordenada Y):</strong> <code>=ALEATORIO()</code></div>
+                                </div>
+                                <p class="text-slate-500 text-[11px] italic mt-1">
+                                    Nota: La función <code>=ALEATORIO()</code> entrega números pseudoaleatorios continuos uniformemente distribuidos en el intervalo $(0,1)$.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Paso 2 -->
+                        <div class="flex gap-4 items-start text-sm">
+                            <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-slate-950">Calcular la distancia al origen (Ecuación del Círculo)</h4>
+                                <p class="text-slate-600 text-xs leading-relaxed">
+                                    Determine si la posición del dardo $(X,Y)$ se encuentra dentro del sector circular (radio $\le 1$). Aplique la ecuación del círculo unitario: $d^2 = X^2 + Y^2$.
+                                </p>
+                                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-800 mt-2">
+                                    <strong>Celda D2 ($X^2 + Y^2$):</strong> <code>=(B2^2) + (C2^2)</code>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 3 -->
+                        <div class="flex gap-4 items-start text-sm">
+                            <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-slate-950">Verificar si el dardo cayó dentro del círculo</h4>
+                                <p class="text-slate-600 text-xs leading-relaxed">
+                                    Utilice una función lógica para asignar un valor binario ($1$ si cae dentro del cuarto de círculo, $0$ si cae fuera):
+                                </p>
+                                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-800 mt-2">
+                                    <strong>Celda E2 (¿Dentro?):</strong> <code>=SI(D2<=1; 1; 0)</code>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 4 -->
+                        <div class="flex gap-4 items-start text-sm">
+                            <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold flex-shrink-0">4</div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-slate-950">Calcular la estimación progresiva de $\pi$</h4>
+                                <p class="text-slate-600 text-xs leading-relaxed">
+                                    Lleve un registro dinámico del valor estimado acumulado para observar gráficamente la convergencia del modelo conforme aumentan los lanzamientos:
+                                </p>
+                                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-800 mt-2">
+                                    <strong>Celda F2 (Estimación de $\pi$):</strong> <code>=4 * PROMEDIO($E$2:E2)</code>
+                                </div>
+                                <p class="text-slate-500 text-[11px] italic mt-1">
+                                    Arrastre las fórmulas de las celdas B2:F2 hacia abajo hasta completar la fila 501 (para obtener $500$ corridas de simulación).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- El Experimento de la Clase: Excel NCG vs Excel ALEATORIO -->
+                <section class="bg-slate-900 text-white p-8 rounded-2xl shadow-md relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-5 translate-x-10 -translate-y-10">
+                        <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-amber-400/20 text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        El Experimento Crítico
+                    </span>
+                    <h3 class="text-lg font-bold mt-2 mb-3">La Importancia de un Buen Generador</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed mb-4">
+                        Su profesor le entregará un generador congruencial lineal determinista (LCG) defectuoso de periodo muy corto ($m = 16$), definido por:
+                        $$X_{i+1} = (5X_i + 3) \pmod{16}, \quad X_0 = 7$$
+                    </p>
+                    <p class="text-slate-300 text-xs leading-relaxed mb-4">
+                        Cuando replique el experimento usando esta secuencia normalizada $r_i = X_i/16$, notará que la estimación de $\pi$ se desvía drásticamente y que los puntos en el simulador se alinean en líneas paralelas idénticas.
+                    </p>
+                    <div class="p-3 bg-white/5 rounded-xl border border-white/10 text-xs text-slate-300">
+                        <strong>¿Por qué ocurre esto?</strong> Al repetirse constantemente los mismos pares ordenados $(X,Y)$ debido al periodo extremadamente corto, se viola la propiedad de <strong>independencia</strong> (autocorrelación) y de <strong>uniformidad</strong>. Ninguna simulación puede considerarse válida sin pasar primero las pruebas de aleatoriedad.
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Columna de Ejercicios y Entregables (1/3) -->
+            <div class="lg:col-span-1 space-y-6">
+                
+                <!-- Panel de Preguntas Evaluadas -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="text-base font-bold text-slate-950 mb-3 flex items-center gap-2">
+                        <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>
+                        Preguntas del Taller
+                    </h3>
+                    <p class="text-slate-500 text-[11px] leading-relaxed mb-4">
+                        En base al simulador interactivo y al modelo desarrollado en Excel, responda en su informe ejecutivo las siguientes preguntas:
+                    </p>
+
+                    <div class="space-y-4 text-xs">
+                        <div class="p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition border border-slate-150">
+                            <span class="font-bold text-indigo-600 block mb-1">Pregunta 1</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                Grafique el progreso de la estimación de $\pi$ (Columna F) vs el número de lanzamiento en Excel. Explique a partir del gráfico qué es el fenómeno de <strong>"convergencia"</strong> y cómo se relaciona con la Ley de los Grandes Números.
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition border border-slate-150">
+                            <span class="font-bold text-indigo-600 block mb-1">Pregunta 2</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                Active el <strong>Generador LCG</strong> en el simulador visual. Describa detalladamente el patrón geométrico que toman los puntos. ¿Qué propiedad clave de los números aleatorios se está violando de forma evidente?
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition border border-slate-150">
+                            <span class="font-bold text-indigo-600 block mb-1">Pregunta 3</span>
+                            <p class="text-slate-700 leading-relaxed">
+                                ¿Por qué en un software especializado como <strong>Simio</strong> no requerimos preocuparnos por el comportamiento que observó con el generador LCG de periodo corto? Explique usando el concepto de Mersenne Twister.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Caja de Control USS -->
+                <div class="bg-indigo-950 text-white p-5 rounded-2xl shadow-sm space-y-3">
+                    <span class="text-[10px] bg-white/20 text-indigo-200 font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block">
+                        Especificaciones
+                    </span>
+                    <h4 class="font-bold text-sm">Entregables de Clase</h4>
+                    <ul class="text-[11px] text-slate-300 space-y-1.5 pl-3 list-disc">
+                        <li>Planilla Excel funcional con 500 réplicas.</li>
+                        <li>Gráfico de dispersión de coordenadas $(X,Y)$ de los dardos.</li>
+                        <li>Gráfico de convergencia del valor de $\pi$.</li>
+                        <li>Informe ejecutivo PDF de 1 página con las respuestas a las preguntas.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-12 border-t border-slate-800 text-[11px]">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p>&copy; 2026 Universidad San Sebastián - Facultad de Ingeniería y Tecnología. Cátedra de Simulación por Eventos Discretos.</p>
+            <p>Diseño Instruccional USS: Introducción al Pensamiento Estocástico USS.</p>
+        </div>
+    </footer>
+
+    <!-- Lógica de Simulación Interactiva en Canvas -->
+    <script>
+        const canvas = document.getElementById('dartboard');
+        const ctx = canvas.getContext('2d');
+        
+        let totalDarts = 0;
+        let insideCircle = 0;
+        let generatorType = 'native'; // 'native' o 'lcg'
+        let lcgState = 7; // Seed inicial
+        
+        // Parámetros LCG: X_i = (5 * X_i-1 + 3) mod 16
+        const lcgM = 16;
+        const lcgA = 5;
+        const lcgC = 3;
+
+        function initCanvas() {
+            const size = canvas.parentElement.clientWidth;
+            canvas.width = size;
+            canvas.height = size;
+            drawBoard();
+        }
+
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar fondo cuadrado
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar sector circular
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            ctx.arc(0, canvas.height, canvas.width, 1.5 * Math.PI, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fillStyle = '#e0e7ff';
+            ctx.fill();
+            
+            // Arco límite
+            ctx.beginPath();
+            ctx.arc(0, canvas.height, canvas.width, 1.5 * Math.PI, 2 * Math.PI);
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function getNextLcgNumber() {
+            lcgState = (lcgA * lcgState + lcgC) % lcgM;
+            return lcgState / lcgM;
+        }
+
+        function addDarts(count) {
+            for (let i = 0; i < count; i++) {
+                let x, y;
+                if (generatorType === 'native') {
+                    x = Math.random();
+                    y = Math.random();
+                } else {
+                    x = getNextLcgNumber();
+                    y = getNextLcgNumber();
+                }
+                
+                totalDarts++;
+                const distanceSq = x*x + y*y;
+                const isInside = distanceSq <= 1;
+                
+                if (isInside) {
+                    insideCircle++;
+                }
+
+                // Plotear en el canvas (X va de 0 a 1, Y va de 0 a 1 desde abajo hacia arriba)
+                const canvasX = x * canvas.width;
+                const canvasY = canvas.height - (y * canvas.height);
+                
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 2, 0, 2 * Math.PI);
+                ctx.fillStyle = isInside ? '#4f46e5' : '#ef4444'; // Azul si está dentro, Rojo fuera
+                ctx.fill();
+            }
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').innerText = totalDarts.toLocaleString();
+            document.getElementById('stat-inside').innerText = insideCircle.toLocaleString();
+            
+            let estimatedPi = 0;
+            if (totalDarts > 0) {
+                estimatedPi = 4 * (insideCircle / totalDarts);
+            }
+            document.getElementById('stat-pi').innerText = estimatedPi.toFixed(4);
+            
+            // Calcular porcentaje de error
+            const actualPi = Math.PI;
+            const errorPct = totalDarts > 0 ? (Math.abs(estimatedPi - actualPi) / actualPi) * 100 : 0;
+            document.getElementById('stat-error').innerText = errorPct.toFixed(2) + '%';
+        }
+
+        function setGenerator(type) {
+            generatorType = type;
+            const badge = document.getElementById('generator-badge');
+            const btnNative = document.getElementById('btn-gen-native');
+            const btnLcg = document.getElementById('btn-gen-lcg');
+            
+            if (type === 'native') {
+                badge.innerText = 'Generador: Excel Nativo';
+                btnNative.className = "bg-indigo-600 text-white text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition";
+                btnLcg.className = "bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition";
+            } else {
+                badge.innerText = 'Generador: LCG Defectuoso';
+                btnLcg.className = "bg-indigo-600 text-white text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition";
+                btnNative.className = "bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition";
+            }
+            resetSimulation();
+        }
+
+        function resetSimulation() {
+            totalDarts = 0;
+            insideCircle = 0;
+            lcgState = 7;
+            drawBoard();
+            updateStats();
+        }
+
+        // Ajustar viewport y canvas inicial
+        window.onload = function() {
+            initCanvas();
+        };
+        
+        window.addEventListener('resize', initCanvas);
+    </script>
+</body>
+</html>
