@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller de Simulación en Excel - Clase 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Merriweather', serif;
+            color: #1a202c;
+        }
+        .slide {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+        .code-block {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+        }
+        .formula-box {
+            background-color: #ffffff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        /* Custom scrollbar for slides */
+        .slide-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .slide-content::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .slide-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .slide-content::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="overflow-hidden h-screen w-screen flex flex-col selection:bg-blue-200 selection:text-blue-900">
+
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-200 h-1.5">
+        <div id="progressBar" class="bg-blue-600 h-1.5 transition-all duration-300 w-0"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="flex-grow relative flex items-center justify-center p-4 md:p-8">
+
+        <!-- Slide 1: Portada -->
+        <section class="slide active absolute inset-0 w-full h-full flex flex-col justify-center items-center bg-[#f8f9fa] z-10" id="slide-0">
+            <div class="max-w-4xl w-full text-center px-6">
+                <p class="text-blue-600 font-semibold tracking-widest uppercase mb-4 text-sm md:text-base">Taller de Simulación de Eventos Discretos</p>
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Generación de Variables Estocásticas en Excel</h1>
+                <div class="w-24 h-1 bg-blue-600 mx-auto mb-8"></div>
+                <h2 class="text-xl md:text-2xl font-light text-gray-600 mb-8">Clase 3: Modelando Procesos Reales mediante Distribuciones de Probabilidad</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left bg-white p-8 rounded-lg shadow-sm border border-gray-100">
+                    <p><strong>Unidad 2:</strong> Simulación de Montecarlo y Aleatoriedad.</p>
+                    <p><strong>Modalidad:</strong> Co-resolución Guiada.</p>
+                    <p><strong>Duración:</strong> 120 minutos.</p>
+                    <p><strong>Herramienta:</strong> Microsoft Excel.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Introducción y Lineamientos -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-1">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 border-b pb-4">1. Introducción y Lineamientos</h2>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Aplicaremos el <strong>Método de la Transformada Inversa</strong> y las funciones integradas de Excel para construir un modelo de colas dinámico de una línea de transferencia logística.
+                </p>
+                
+                <h3 class="text-2xl font-semibold mb-4 mt-4 text-gray-800">Instrucciones de Trabajo:</h3>
+                <ul class="list-none space-y-4 text-lg text-gray-700">
+                    <li class="flex items-start">
+                        <span class="text-blue-500 mr-3 mt-1">✓</span>
+                        <span><strong>Grupos:</strong> Mantengan sus equipos (máximo 3 integrantes).</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-500 mr-3 mt-1">✓</span>
+                        <span><strong>Roles:</strong> Coordinador (tiempo), Redactor (fórmulas) y Presentador (análisis).</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-500 mr-3 mt-1">✓</span>
+                        <span><strong>Dinámica:</strong> Avanzaremos un paso a la vez. Cuando yo proyecte la fórmula, ustedes la aplican en su archivo Excel. No se adelanten sin confirmación.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-500 mr-3 mt-1">✓</span>
+                        <span><strong>Exigencia:</strong> 60% para nota mínima de aprobación (4.0).</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 3: Enunciado del Caso -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-2">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 border-b pb-4">2. Caso: Línea de Transferencia de Carga</h2>
+                
+                <div class="bg-blue-50 p-6 rounded-lg mb-8 border-l-4 border-blue-600">
+                    <h3 class="text-xl font-bold text-blue-900 mb-2">El Problema de la Media Estática</h3>
+                    <p class="text-lg text-blue-800 leading-relaxed">
+                        Un operador logístico necesita evaluar los niveles de servicio. Trabajar con promedios estáticos ha provocado errores de subdimensionamiento debido a la <strong>Desigualdad de Jensen</strong> ($E[f(X)] \neq f(E[X])$). Evaluaremos el sistema con variabilidad real.
+                    </p>
+                </div>
+
+                <p class="text-xl text-gray-700 mb-6 font-semibold">Misión de Hoy:</p>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    Simular el arribo de <strong>30 camiones</strong> y realizar el seguimiento detallado de su flujo secuencial a través de tres estaciones operativas en serie.
+                </p>
+            </div>
+        </section>
+
+        <!-- Slide 4: Distribuciones -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-3">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 border-b pb-4">Parámetros Estocásticos del Sistema</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div class="p-5 border rounded-lg hover:shadow-md transition">
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">A. Arribos (Exponencial)</h4>
+                        <p class="text-gray-600">Proceso de Poisson. Tiempo entre llegadas con media $\beta = 15 \text{ min}$.</p>
+                    </div>
+                    <div class="p-5 border rounded-lg hover:shadow-md transition">
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">B. Tamaño Lote (Binomial Desplazada)</h4>
+                        <p class="text-gray-600">Volumen de pallets: $n = 5$, $p = 0.60$. Desplazada +1 para evitar lotes de 0.</p>
+                    </div>
+                    <div class="p-5 border rounded-lg hover:shadow-md transition">
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">C. Est. 1: Pesaje (Normal)</h4>
+                        <p class="text-gray-600">Proceso simétrico automatizado. Media $\mu = 2 \text{ min}$, Desv. $\sigma = 0.2 \text{ min}$.</p>
+                    </div>
+                    <div class="p-5 border rounded-lg hover:shadow-md transition">
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">D. Est. 2: Clasificación (Triangular)</h4>
+                        <p class="text-gray-600">Por opinión experta: Mín $= 3$, Moda $= 5$, Máx $= 8 \text{ min}$.</p>
+                    </div>
+                    <div class="p-5 border rounded-lg md:col-span-2 hover:shadow-md transition">
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">E. Est. 3: Rectificación (Beta Acotada)</h4>
+                        <p class="text-gray-600">Reprocesamiento asimétrico: Forma $\alpha_1 = 2$, $\alpha_2 = 5$. Escalada de $[0,1]$ a $[0, 10] \text{ min}$.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Paso 1 - Columnas -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-4">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl font-bold mb-4 text-blue-800">Paso 1: Estructuración en Excel</h2>
+                <p class="text-lg text-gray-600 mb-6">Abran un libro en blanco. En la <strong>Fila 4</strong>, escriban los siguientes encabezados de la <strong>A</strong> a la <strong>V</strong>:</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-700 border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-800">
+                                <th class="p-3 border">Generales</th>
+                                <th class="p-3 border">Arribo y Lote</th>
+                                <th class="p-3 border">Estación 1 (Pesaje)</th>
+                                <th class="p-3 border">Estación 2 y 3 (Clasif / Rectif)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-3 border font-mono text-xs">A: Camión (1 a 30)</td>
+                                <td class="p-3 border font-mono text-xs">B: R_Llegada<br>C: T_Entre_Llegadas<br>D: Hora_Llegada</td>
+                                <td class="p-3 border font-mono text-xs">G: Inicio_Pesaje<br>H: R_Pesaje<br>I: T_Pesaje<br>J: Fin_Pesaje<br>K: Cola_Pesaje</td>
+                                <td class="p-3 border font-mono text-xs">L-P: Mismo formato que Est. 1 pero para Clasificación<br>Q-U: Mismo formato para Rectificación<br>V: Tiempo_Sistema</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="p-3 border font-mono text-xs">E: R_Lote<br>F: Cant_Pallets</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-8 bg-yellow-50 p-4 rounded text-yellow-800 font-semibold text-center">
+                    ¡Esperen a que todos tengan la Fila 4 lista para avanzar a las fórmulas!
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Paso 2a - Llegadas y Lotes -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-5">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl font-bold mb-4 text-blue-800">Paso 2a: Fórmulas de Arribo y Lote (Fila 5)</h2>
+                
+                <div class="formula-box">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">1. Tiempo Entre Llegadas (Exponencial)</h3>
+                    <p class="text-sm text-gray-500 mb-3">$X = -\beta \ln(R_1)$</p>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-700">
+                        <li><strong>B5 (R_Llegada):</strong> <span class="code-block">=ALEATORIO()</span></li>
+                        <li><strong>C5 (T_Entre_Llegadas):</strong> <span class="code-block">=-15 * LN(B5)</span></li>
+                        <li><strong>D5 (Hora_Llegada):</strong> <span class="code-block">=C5</span> <em>(Nota: Desde D6 en adelante será =D4+C5)</em></li>
+                    </ul>
+                </div>
+
+                <div class="formula-box mt-4">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">2. Tamaño de Lote (Binomial Desplazada)</h3>
+                    <p class="text-sm text-gray-500 mb-3">$X_{\text{lote}} = \text{Binomial}(5, 0.60) + 1$</p>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-700">
+                        <li><strong>E5 (R_Lote):</strong> <span class="code-block">=ALEATORIO()</span></li>
+                        <li><strong>F5 (Cant_Pallets):</strong> <span class="code-block">=INV.BINOM(5; 0,6; E5) + 1</span> <br><span class="text-sm text-gray-500">(Inglés: =BINOM.INV(5, 0.6, E5) + 1)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: Paso 2b - Pesaje y Clasificación -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-6">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl font-bold mb-4 text-blue-800">Paso 2b: Estación 1 y 2 (Fila 5)</h2>
+                
+                <div class="formula-box">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">3. Estación 1: Pesaje (Normal)</h3>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-700 text-sm md:text-base">
+                        <li><strong>G5 (Inicio):</strong> <span class="code-block">=D5</span> <em>(Fila 6: =MAX(D6; J5))</em></li>
+                        <li><strong>H5 (R_Pesaje):</strong> <span class="code-block">=ALEATORIO()</span></li>
+                        <li><strong>I5 (T_Pesaje):</strong> <span class="code-block">=INV.NORM(H5; 2; 0,2)</span></li>
+                        <li><strong>J5 (Fin):</strong> <span class="code-block">=G5+I5</span> | <strong>K5 (Cola):</strong> <span class="code-block">=G5-D5</span></li>
+                    </ul>
+                </div>
+
+                <div class="formula-box mt-4">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">4. Estación 2: Clasificación (Triangular [3, 5, 8])</h3>
+                    <p class="text-sm text-gray-500 mb-2">Punto de corte $R_c = (5-3)/(8-3) = 0.40$</p>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-700 text-sm md:text-base">
+                        <li><strong>L5 (Inicio):</strong> <span class="code-block">=J5</span> <em>(Fila 6: =MAX(J6; O5))</em></li>
+                        <li><strong>M5 (R_Clasif):</strong> <span class="code-block">=ALEATORIO()</span></li>
+                        <li><strong>N5 (T_Clasif):</strong> <span class="code-block">=SI(M5<=0,4; 3+RAIZ(10*M5); 8-RAIZ(15*(1-M5)))</span></li>
+                        <li><strong>O5 (Fin):</strong> <span class="code-block">=L5+N5</span> | <strong>P5 (Cola):</strong> <span class="code-block">=L5-J5</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 8: Paso 2c - Rectificación -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-7">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl font-bold mb-4 text-blue-800">Paso 2c: Estación 3 y Sistema (Fila 5)</h2>
+                
+                <div class="formula-box">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">5. Estación 3: Rectificación (Beta [2, 5] en [0, 10])</h3>
+                    <ul class="list-disc pl-6 space-y-3 text-gray-700 text-lg">
+                        <li><strong>Q5 (Inicio_Rectif):</strong> <span class="code-block">=O5</span> <em>(Para fila 6+: =MAX(O6; T5))</em></li>
+                        <li><strong>R5 (R_Rectif):</strong> <span class="code-block">=ALEATORIO()</span></li>
+                        <li><strong>S5 (T_Rectif):</strong> <span class="code-block">=INV.BETA(R5; 2; 5; 0; 10)</span></li>
+                        <li><strong>T5 (Fin_Rectif):</strong> <span class="code-block">=Q5+S5</span></li>
+                        <li><strong>U5 (Cola_Rectif):</strong> <span class="code-block">=Q5-O5</span></li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-100 p-5 rounded-lg mt-6 border border-gray-200">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">Cierre del Sistema</h3>
+                    <p class="text-lg text-gray-700"><strong>V5 (Tiempo_Sistema):</strong> <span class="code-block">=T5-D5</span></p>
+                    <p class="mt-4 text-sm text-red-600 font-semibold">Acción: Arrastren la fila 6 (con las fórmulas condicionales =MAX) hasta el camión 30.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 9: Ejercicios -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-8">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-4">Ejercicios Prácticos de Simulación</h2>
+                
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">Ejercicio 1: Indicadores Globales</h3>
+                        <p class="text-lg text-gray-700 mb-2">Calcule debajo de su tabla (Fila 36):</p>
+                        <ul class="list-disc pl-6 text-gray-700 space-y-2">
+                            <li>Tiempo promedio en sistema: <span class="code-block">=PROMEDIO(V5:V34)</span></li>
+                            <li>Suma de espera promedio total (sume los promedios de colas K, P y U).</li>
+                            <li>Identifique el <strong>cuello de botella principal</strong> (mayor cola promedio).</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">Ejercicio 2: Análisis de Convergencia</h3>
+                        <p class="text-lg text-gray-700 mb-2">Presionen <strong>F9</strong> 10 veces. Cada vez, registren a un costado el Tiempo Promedio en Sistema.</p>
+                        <p class="text-lg text-gray-700 mt-2">Con esos 10 datos, calculen la media, desviación estándar y un <strong>Intervalo de Confianza al 95%</strong>:</p>
+                        <div class="bg-gray-50 p-4 mt-3 rounded text-center text-xl">
+                            $\text{IC} = \bar{X} \pm t_{\alpha/2, n-1} \times \frac{s}{\sqrt{n}}$
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 10: Preguntas de Control -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-9">
+            <div class="slide-content max-w-5xl w-full h-full max-h-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-y-auto p-8 md:p-12 flex flex-col">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-4">Preguntas para el Reporte Final</h2>
+                
+                <p class="text-lg text-gray-600 italic mb-6">Respondan individualmente en formato PDF fundamentando teóricamente:</p>
+
+                <ol class="list-decimal pl-6 space-y-6 text-lg text-gray-800">
+                    <li><strong>Desigualdad de Jensen:</strong> Comparando su simulación con un cálculo de promedios estáticos, ¿Por qué los modelos estáticos subestiman las colas?</li>
+                    <li><strong>Análisis Normal:</strong> ¿Qué implicancia operacional tiene que la distribución Normal arroje tiempos negativos? ¿Qué distribución continua positiva usaría en su lugar?</li>
+                    <li><strong>Beta vs Triangular:</strong> En ausencia de datos, ¿cuál es la ventaja teórica de usar Beta sobre Triangular ante alta asimetría?</li>
+                    <li><strong>Dato Faltante:</strong> Si quisiera modelar desgaste mecánico de los camiones para predecir fallas, ¿qué dato falta explícitamente en el enunciado? Identifíquelo como "Dato Faltante en Fuentes".</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Slide 11: Cierre y Entrega -->
+        <section class="slide absolute inset-0 w-full h-full flex justify-center items-center py-8" id="slide-10">
+            <div class="slide-content max-w-4xl w-full text-center bg-white rounded-xl shadow-lg border border-gray-100 p-12">
+                <h2 class="text-4xl font-bold mb-6 text-gray-800">Cierre del Taller</h2>
+                
+                <div class="my-10">
+                    <span class="inline-block bg-blue-100 text-blue-800 px-6 py-3 rounded-full text-xl font-bold mb-4">
+                        Entregable Blackboard
+                    </span>
+                    <p class="text-xl text-gray-700">Subir el archivo <strong>Excel</strong> y un <strong>PDF</strong> breve con las respuestas.</p>
+                </div>
+
+                <div class="bg-gray-50 border p-6 rounded-lg text-left text-gray-700">
+                    <h4 class="font-bold text-lg mb-2">Rúbrica (Resumen):</h4>
+                    <ul class="list-disc pl-6 space-y-1">
+                        <li>Fórmulas Exp y Normal (Lógica de colas): 30 pts.</li>
+                        <li>Lógica Triangular (Condicional): 20 pts.</li>
+                        <li>Lote Binomial y Beta Escalada: 20 pts.</li>
+                        <li>Análisis (Jensen, IC 95%, Preguntas): 20 pts.</li>
+                        <li>Orden de la planilla: 10 pts.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Navigation Controls -->
+    <footer class="bg-white border-t border-gray-200 p-4 flex justify-between items-center z-50 relative">
+        <button onclick="prevSlide()" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded transition shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            &larr; Anterior
+        </button>
+        
+        <div class="text-gray-500 font-mono font-bold tracking-widest text-sm">
+            <span id="slideCounter">1 / 11</span>
+        </div>
+
+        <button onclick="nextSlide()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Siguiente &rarr;
+        </button>
+    </footer>
+
+    <!-- Presentation Logic -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const counter = document.getElementById('slideCounter');
+        const progressBar = document.getElementById('progressBar');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+            counter.innerText = `${currentSlide + 1} / ${totalSlides}`;
+            progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Init
+        updateSlide();
+    </script>
+</body>
+</html>
