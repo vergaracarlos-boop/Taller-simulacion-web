@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller Evaluado N°1: Simulación de Montecarlo y Variables Aleatorias</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Sans y Noto Serif -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for TeX Render -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+        }
+        .serif-title {
+            font-family: 'Noto Serif', serif;
+        }
+        .slide {
+            display: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .slide.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- HEADER / BARRA DE PROGRESO -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 px-6 py-4 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-lg shadow-md shadow-indigo-100">
+                    <i class="fa-solid fa-calculator text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Taller de Simulación Logística</h1>
+                    <h2 class="serif-title text-xl font-bold text-slate-900">Evaluación Guiada: Montecarlo y Variables Aleatorias</h2>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-xs font-semibold px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-clock"></i> Duración: 2 Horas
+                </span>
+                <span class="text-xs font-semibold px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-graduation-cap"></i> Docente: Carlos Vergara Ureta
+                </span>
+            </div>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-100 h-1.5 mt-4 rounded-full overflow-hidden">
+            <div id="progressBar" class="bg-indigo-600 h-full transition-all duration-300" style="width: 12.5%;"></div>
+        </div>
+    </header>
+
+    <!-- CUERPO PRINCIPAL DEL TALLER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-8 flex flex-col md:flex-row gap-8">
+        
+        <!-- SIDEBAR DE NAVEGACIÓN -->
+        <aside class="w-full md:w-64 shrink-0 bg-white p-4 rounded-xl border border-slate-200 shadow-sm self-start">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-2">Estructura del Taller</h3>
+            <nav class="space-y-1" id="sidebarMenu">
+                <button onclick="goToSlide(0)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg bg-indigo-50 text-indigo-900 border-l-4 border-indigo-600 flex items-center gap-2">
+                    <i class="fa-solid fa-book"></i> 1. Contexto y RA
+                </button>
+                <button onclick="goToSlide(1)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-list"></i> 2. Instrucciones
+                </button>
+                <button onclick="goToSlide(2)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> 3. Transformada Inversa
+                </button>
+                <button onclick="goToSlide(3)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> 4. Método de Composición
+                </button>
+                <button onclick="goToSlide(4)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                    <i class="fa-solid fa-shuffle"></i> 5. Método de Convolución
+                </button>
+                <button onclick="goToSlide(5)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-nodes"></i> 6. Aceptación y Rechazo
+                </button>
+                <button onclick="goToSlide(6)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                    <i class="fa-solid fa-laptop-code"></i> 7. Contraste con SIMIO
+                </button>
+                <button onclick="goToSlide(7)" class="menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                    <i class="fa-solid fa-star-half-stroke"></i> 8. Rúbrica Analítica
+                </button>
+            </nav>
+
+            <!-- SIMULADOR INTERACTIVO DE SOPORTE -->
+            <div class="mt-8 border-t border-slate-200 pt-6">
+                <div class="bg-slate-900 text-slate-100 rounded-xl p-4 shadow-inner">
+                    <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-play"></i> Simulación en Vivo
+                    </h4>
+                    <p class="text-xs text-slate-400 mb-3 leading-relaxed">Comprueba las transformaciones estocásticas directamente desde este panel interactivo.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-semibold mb-1">R pseudoaleatorio (U[0,1])</label>
+                            <input type="number" id="widgetR" step="0.01" min="0" max="0.99" value="0.45" class="w-full bg-slate-800 text-white border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <button onclick="runWidgetSim()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                            <i class="fa-solid fa-gears"></i> Calcular Variables
+                        </button>
+                        <div id="widgetResults" class="hidden text-xs space-y-1.5 bg-slate-800 p-2.5 rounded border border-slate-700 text-slate-300">
+                            <div class="flex justify-between border-b border-slate-700 pb-1">
+                                <span>Exponencial (&lambda;=0.5):</span>
+                                <span id="expResult" class="font-bold text-emerald-400">0.00</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-700 pb-1">
+                                <span>Composición (Defectos):</span>
+                                <span id="compResult" class="font-bold text-amber-400">0.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Convolución (k=3):</span>
+                                <span id="convResult" class="font-bold text-cyan-400">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENEDOR DE DIAPOSITIVAS -->
+        <section class="flex-grow bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div id="slidesContainer">
+
+                <!-- SLIDE 1: CONTEXTO Y RESULTADOS DE APRENDIZAJE -->
+                <div class="slide active">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Módulo Teórico Inicial</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-4">1. Introducción y Resultado de Aprendizaje</h2>
+                    
+                    <div class="prose prose-slate max-w-none space-y-4">
+                        <p class="text-base text-slate-600 leading-relaxed">
+                            Para realizar una simulación que represente efectivamente el comportamiento de un sistema real, es imperativo estructurar y conocer la variabilidad de las variables involucradas. Este taller enseña a aplicar en forma práctica la metodología de la simulación mediante la programación analítica en planilla de cálculo de generadores estocásticos.
+                        </p>
+                        
+                        <div class="bg-gradient-to-r from-indigo-500 to-indigo-700 text-white p-6 rounded-xl shadow-md my-6">
+                            <h4 class="text-sm font-bold uppercase tracking-wider mb-1 text-indigo-200">Resultado de Aprendizaje (RA)</h4>
+                            <p class="text-lg font-medium">
+                                "Aplicar la simulación de Montecarlo a diversos problemas de simulación de sistemas productivos y logísticos."
+                            </p>
+                        </div>
+
+                        <div class="border-l-4 border-indigo-500 bg-indigo-50 p-4 rounded-r-xl">
+                            <h4 class="font-semibold text-indigo-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb"></i> Concepto Clave de Partida
+                            </h4>
+                            <p class="text-sm text-slate-700 mt-1 leading-relaxed">
+                                Todos los generadores estocásticos de un software profesional de simulación parten de números aleatorios uniformes $U(0,1)$. En esta sesión, se resolverán y programarán de forma manual las transformaciones matemáticas fundamentales para comprender la lógica interna de estos algoritmos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 2: INSTRUCCIONES GENERALES -->
+                <div class="slide">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Reglas del Taller</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-4">2. Instrucciones del Taller Práctico</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                        <div class="p-5 border border-slate-100 rounded-xl bg-slate-50 flex gap-4">
+                            <div class="text-indigo-600 mt-1"><i class="fa-solid fa-users text-xl"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Modalidad de Trabajo</h4>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">El desarrollo se realiza de forma colaborativa en parejas, fomentando el análisis de las fórmulas de generación y la discusión técnica.</p>
+                            </div>
+                        </div>
+                        <div class="p-5 border border-slate-100 rounded-xl bg-slate-50 flex gap-4">
+                            <div class="text-indigo-600 mt-1"><i class="fa-solid fa-file-excel text-xl"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Entregables Requeridos</h4>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">Un único archivo comprimido por equipo conteniendo la planilla de cálculo de Excel (.xlsx) programada y un informe resumen de resultados en formato PDF.</p>
+                            </div>
+                        </div>
+                        <div class="p-5 border border-slate-100 rounded-xl bg-slate-50 flex gap-4">
+                            <div class="text-indigo-600 mt-1"><i class="fa-solid fa-chart-line text-xl"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Parámetro de Réplicas</h4>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">Cada ejercicio estipula la generación de al menos 50 réplicas numéricas independientes para poder analizar estabilidad de medias estocásticas.</p>
+                            </div>
+                        </div>
+                        <div class="p-5 border border-slate-100 rounded-xl bg-slate-50 flex gap-4">
+                            <div class="text-indigo-600 mt-1"><i class="fa-solid fa-percent text-xl"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Escala de Calificación</h4>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">Nivel de exigencia establecido estrictamente al 60% para lograr la nota de aprobación mínima (4.0 en escala estándar).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 3: METODO DE LA TRANSFORMADA INVERSA -->
+                <div class="slide">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Ejercicio 1</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-2">Método de la Transformada Inversa</h2>
+                    <h3 class="text-sm text-slate-500 font-semibold mb-6 uppercase tracking-wider">Distribución Exponencial: Tiempos Entre Arribos</h3>
+
+                    <!-- TABS Y BOTON TEORIA PARA EJERCICIO -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 mb-4 gap-2" id="tabExp">
+                        <div class="flex">
+                            <button onclick="switchTab('tabExp', 'math')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">
+                                <i class="fa-solid fa-square-root-variable"></i> Fundamento Matemático
+                            </button>
+                            <button onclick="switchTab('tabExp', 'excel')" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-800">
+                                <i class="fa-solid fa-file-excel"></i> Sintaxis Excel
+                            </button>
+                        </div>
+                        <button onclick="openTheoryModal('transformada')" class="self-start sm:self-auto mb-2 sm:mb-0 px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-book-open"></i> Ver Breve Teoría
+                        </button>
+                    </div>
+
+                    <div class="tab-content" id="tabExp-math">
+                        <div class="prose prose-slate max-w-none space-y-4">
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Un camión cargado con rollizos de madera arriba a una planta de celulosa. La consultora logística a cargo determina que los tiempos entre arribos siguen una distribución exponencial con un promedio de <strong>2 minutos</strong> ($\lambda = 0.5$ camiones/minuto).
+                            </p>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center">
+                                <span class="text-xs text-slate-400 uppercase tracking-wider mb-2">Despeje Analítico</span>
+                                <div class="text-base font-semibold text-slate-800">
+                                    $$F(x) = 1 - e^{-\lambda \cdot x} = R \quad \implies \quad 1 - R = e^{-\lambda \cdot x}$$
+                                    $$\ln(1 - R) = -\lambda \cdot x \quad \implies \quad x = -\frac{1}{\lambda} \cdot \ln(1 - R)$$
+                                    $$\text{Con } \lambda = 0.5 \implies x = -2 \cdot \ln(1 - R)$$
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content hidden" id="tabExp-excel">
+                        <div class="space-y-4">
+                            <p class="text-sm text-slate-600">
+                                Genere una columna de 50 filas. Coloque un número aleatorio uniforme en la columna A, y use la ecuación en la columna B para generar el tiempo estocástico simulado.
+                            </p>
+                            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-sm shadow-inner relative">
+                                <span class="absolute top-2 right-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider">Fórmula Excel</span>
+                                <div class="space-y-2">
+                                    <div>
+                                        <span class="text-indigo-400"># Sintaxis en Español:</span><br>
+                                        <span class="text-emerald-400">=-2 * LN(1 - ALEATORIO())</span>
+                                    </div>
+                                    <div class="pt-2 border-t border-slate-800">
+                                        <span class="text-indigo-400"># Sintaxis en Inglés:</span><br>
+                                        <span class="text-emerald-400">=-2 * LN(1 - RAND())</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 border-l-4 border-blue-600 p-3 rounded-r-lg text-xs text-blue-900">
+                                <strong>Tip Estocástico:</strong> Dado que $(1-R)$ posee la misma distribución uniforme exacta que $R \in (0,1)$, la bibliografía técnica frecuentemente simplifica la expresión analítica a: <code>=-2 * LN(ALEATORIO())</code>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 4: METODO DE LA COMPOSICION -->
+                <div class="slide">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Ejercicio 2</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-2">Método de Composición o Mezclas</h2>
+                    <h3 class="text-sm text-slate-500 font-semibold mb-6 uppercase tracking-wider">Ponderación de Probabilidades por Áreas</h3>
+
+                    <!-- TABS Y BOTON TEORIA PARA EJERCICIO -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 mb-4 gap-2" id="tabComp">
+                        <div class="flex">
+                            <button onclick="switchTab('tabComp', 'math')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">
+                                <i class="fa-solid fa-square-root-variable"></i> Fundamento Matemático
+                            </button>
+                            <button onclick="switchTab('tabComp', 'excel')" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-800">
+                                <i class="fa-solid fa-file-excel"></i> Sintaxis Excel
+                            </button>
+                        </div>
+                        <button onclick="openTheoryModal('composicion')" class="self-start sm:self-auto mb-2 sm:mb-0 px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-book-open"></i> Ver Breve Teoría
+                        </button>
+                    </div>
+
+                    <div class="tab-content" id="tabComp-math">
+                        <div class="prose prose-slate max-w-none space-y-4">
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Un proceso de inspección de piezas tiene un tiempo de ejecución que depende del tipo de defecto detectado. El <strong>40%</strong> de las piezas requiere un ajuste simple que sigue una distribución uniforme $U(1,3)$, mientras que el <strong>60%</strong> restante requiere una reparación profunda que sigue una distribución uniforme $U(4,9)$.
+                            </p>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center">
+                                <span class="text-xs text-slate-400 uppercase tracking-wider mb-2">Composición del Sistema</span>
+                                <div class="text-sm text-slate-800 space-y-2">
+                                    <p>$$f(x) = 0.40 \cdot f_1(x) + 0.60 \cdot f_2(x)$$</p>
+                                    <p>Donde:</p>
+                                    <ul class="list-disc pl-5">
+                                        <li>$f_1(x) \sim U(1,3) \implies x = 1 + R_2 \cdot (3 - 1)$</li>
+                                        <li>$f_2(x) \sim U(4,9) \implies x = 4 + R_2 \cdot (9 - 4)$</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content hidden" id="tabComp-excel">
+                        <div class="space-y-4">
+                            <p class="text-sm text-slate-600">
+                                Para implementarlo en Excel utilizando una única línea de cálculo por réplica, utilice la siguiente estructura condicional:
+                            </p>
+                            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-sm shadow-inner relative">
+                                <span class="absolute top-2 right-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider">Fórmula Excel</span>
+                                <div class="space-y-2">
+                                    <div>
+                                        <span class="text-indigo-400"># Sintaxis en Español:</span><br>
+                                        <span class="text-emerald-400 text-xs">=SI(ALEATORIO()<=0.4; 1 + ALEATORIO()*(3-1); 4 + ALEATORIO()*(9-4))</span>
+                                    </div>
+                                    <div class="pt-2 border-t border-slate-800">
+                                        <span class="text-indigo-400"># Sintaxis en Inglés:</span><br>
+                                        <span class="text-emerald-400 text-xs">=IF(RAND()<=0.4; 1 + RAND()*(3-1); 4 + RAND()*(9-4))</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 5: METODO DE LA CONVOLUCION -->
+                <div class="slide">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Ejercicio 3</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-2">Método de Convolución</h2>
+                    <h3 class="text-sm text-slate-500 font-semibold mb-6 uppercase tracking-wider">Suma de Variables Aleatorias Independientes</h3>
+
+                    <!-- TABS Y BOTON TEORIA PARA EJERCICIO -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 mb-4 gap-2" id="tabConv">
+                        <div class="flex">
+                            <button onclick="switchTab('tabConv', 'math')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">
+                                <i class="fa-solid fa-square-root-variable"></i> Fundamento Matemático
+                            </button>
+                            <button onclick="switchTab('tabConv', 'excel')" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-800">
+                                <i class="fa-solid fa-file-excel"></i> Sintaxis Excel
+                            </button>
+                        </div>
+                        <button onclick="openTheoryModal('convolucion')" class="self-start sm:self-auto mb-2 sm:mb-0 px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-book-open"></i> Ver Breve Teoría
+                        </button>
+                    </div>
+
+                    <div class="tab-content" id="tabConv-math">
+                        <div class="prose prose-slate max-w-none space-y-4">
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                El tiempo total de servicio de un operario logístico para procesar un pedido de despacho es la suma de los tiempos de empaque de 3 artículos independientes. Cada artículo tiene un tiempo de empaque distribuido exponencialmente con una media de <strong>1 minuto</strong> ($\lambda = 1$). Simule 50 observaciones de este tiempo total.
+                            </p>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center">
+                                <span class="text-xs text-slate-400 uppercase tracking-wider mb-2">Modelo de Convolución (Distribución Erlang-3)</span>
+                                <div class="text-base font-semibold text-slate-800 text-center">
+                                    $$X = \sum_{i=1}^{3} Y_i = \sum_{i=1}^{3} \left( -1 \cdot \ln(1 - R_i) \right)$$
+                                    $$X = -\ln(1 - R_1) - \ln(1 - R_2) - \ln(1 - R_3)$$
+                                    $$X = -\ln((1-R_1) \cdot (1-R_2) \cdot (1-R_3))$$
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content hidden" id="tabConv-excel">
+                        <div class="space-y-4">
+                            <p class="text-sm text-slate-600">
+                                Para evaluar la convolución, simule cada $R_i$ en una columna distinta para corroborar y demostrar la independencia estocástica requerida antes de sumarlos.
+                            </p>
+                            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-sm shadow-inner relative">
+                                <span class="absolute top-2 right-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider">Fórmula Excel</span>
+                                <div class="space-y-2">
+                                    <div>
+                                        <span class="text-indigo-400"># Suma Directa Programada:</span><br>
+                                        <span class="text-emerald-400 text-xs">=-1 * LN((1-ALEATORIO()) * (1-ALEATORIO()) * (1-ALEATORIO()))</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 6: METODO DE ACEPTACION Y RECHAZO -->
+                <div class="slide">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Ejercicio 4</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-2">Método de Aceptación y Rechazo</h2>
+                    <h3 class="text-sm text-slate-500 font-semibold mb-6 uppercase tracking-wider">Simulación de una Función de Densidad Compleja</h3>
+
+                    <!-- TABS Y BOTON TEORIA PARA EJERCICIO -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 mb-4 gap-2" id="tabReject">
+                        <div class="flex">
+                            <button onclick="switchTab('tabReject', 'math')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600">
+                                <i class="fa-solid fa-square-root-variable"></i> Fundamento Matemático
+                            </button>
+                            <button onclick="switchTab('tabReject', 'excel')" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-800">
+                                <i class="fa-solid fa-file-excel"></i> Sintaxis Excel
+                            </button>
+                        </div>
+                        <button onclick="openTheoryModal('aceptacion')" class="self-start sm:self-auto mb-2 sm:mb-0 px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-book-open"></i> Ver Breve Teoría
+                        </button>
+                    </div>
+
+                    <div class="tab-content" id="tabReject-math">
+                        <div class="prose prose-slate max-w-none space-y-4">
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Cuando la inversión analítica de una función de distribución es matemáticamente impracticable, se recurre al método de aceptación y rechazo estructurado por John von Neumann. 
+                            </p>
+                            <p class="text-sm text-slate-600">
+                                Supongamos la función de densidad asimétrica normalizada sobre el dominio $[0,1]$:
+                                $$f(x) = 6x(1-x) \quad \text{con valor máximo } M=1.5 \text{ en } x=0.5$$
+                            </p>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center">
+                                <span class="text-xs text-slate-400 uppercase tracking-wider mb-2">Algoritmo de Von Neumann</span>
+                                <div class="text-xs text-slate-800 space-y-1">
+                                    <p>1. Generar variable de prueba: $x \sim U(0,1)$ usando $R_1$</p>
+                                    <p>2. Generar número de validación: $R_2 \sim U(0,1)$</p>
+                                    <p>3. Evaluar la condición: $R_2 \le \frac{f(x)}{M} = \frac{6x(1-x)}{1.5} = 4x(1-x)$</p>
+                                    <p>4. Si se cumple, <strong>aceptar</strong> $X = x$. Si no, <strong>rechazar</strong> y volver al paso 1.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content hidden" id="tabReject-excel">
+                        <div class="space-y-4">
+                            <p class="text-sm text-slate-600">
+                                Estructure la lógica de generación del algoritmo mediante el siguiente diseño de columnas en su planilla:
+                            </p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left border border-slate-200 rounded-lg">
+                                    <thead class="bg-slate-100 text-slate-700 uppercase">
+                                        <tr>
+                                            <th class="p-2 border-b">Columna</th>
+                                            <th class="p-2 border-b">Variable / Fórmula</th>
+                                            <th class="p-2 border-b">Sintaxis Excel (Español)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-slate-600 font-mono">
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2 border-b">A (Fila 5)</td>
+                                            <td class="p-2 border-b">$R_1$ (Generador)</td>
+                                            <td class="p-2 border-b">=ALEATORIO()</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2 border-b">B (Fila 5)</td>
+                                            <td class="p-2 border-b">$X$ propuesto</td>
+                                            <td class="p-2 border-b">=A5</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2 border-b">C (Fila 5)</td>
+                                            <td class="p-2 border-b">$R_2$ (Validación)</td>
+                                            <td class="p-2 border-b">=ALEATORIO()</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2 border-b">D (Fila 5)</td>
+                                            <td class="p-2 border-b">Criterio $\frac{f(x)}{M}$</td>
+                                            <td class="p-2 border-b">=4*B5*(1-B5)</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50 text-indigo-700 font-semibold">
+                                            <td class="p-2 border-b">E (Fila 5)</td>
+                                            <td class="p-2 border-b">¿Acepta o Rechaza?</td>
+                                            <td class="p-2 border-b">=SI(C5 <= D5; B5; "RECHAZADO")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 7: SIMIO CONTRASTE -->
+                <div class="slide">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Módulo de Integración Tecnológica</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-2">Conexión con el Software de Simulación SIMIO</h2>
+                    <h3 class="text-sm text-slate-500 font-semibold mb-6 uppercase tracking-wider">Mersenne Twister vs Excel LCG</h3>
+
+                    <div class="prose prose-slate max-w-none space-y-4 text-sm text-slate-600 leading-relaxed">
+                        <p>
+                            Mientras que programar estas transformaciones matemáticas en una planilla de cálculo ayuda a comprender la fundamentación física "detrás de escena", en el entorno profesional la simulación por eventos discretos se desarrolla en plataformas avanzadas como **SIMIO**.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                            <div class="p-4 border border-indigo-100 rounded-xl bg-indigo-50/50">
+                                <h4 class="font-bold text-indigo-900 flex items-center gap-1">
+                                    <i class="fa-solid fa-code"></i> Expresiones Integradas
+                                </h4>
+                                <p class="text-xs text-slate-700 mt-2">
+                                    En SIMIO, no es necesario modelar manualmente la inversión matemática de las funciones acumuladas. El motor compila y procesa estas operaciones de manera optimizada utilizando expresiones estándar:
+                                </p>
+                                <ul class="list-disc pl-5 mt-2 text-xs space-y-1 text-slate-800 font-mono">
+                                    <li><code>Random.Exponential(2)</code> (Ejercicio 1)</li>
+                                    <li><code>Random.Uniform(1, 3)</code> (Ejercicio 2)</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border border-amber-100 rounded-xl bg-amber-50/50">
+                                <h4 class="font-bold text-amber-900 flex items-center gap-1">
+                                    <i class="fa-solid fa-shield-halved"></i> Robustez Estocástica
+                                </h4>
+                                <p class="text-xs text-slate-700 mt-2">
+                                    A diferencia de las planillas comunes que emplean algoritmos congruenciales lineales básicos (LCG), <strong>SIMIO</strong> implementa el sofisticado generador **Mersenne Twister** de período completo ($2^{19937}-1$). Esto garantiza máxima independencia estadística y previene errores por correlación cíclica en estudios complejos.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 8: RUBRICA ANALITICA -->
+                <div class="slide">
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-800 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Evaluación y Criterios</span>
+                    <h2 class="serif-title text-3xl font-extrabold text-slate-900 mb-4">Rúbrica de Evaluación del Taller</h2>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border border-slate-200 rounded-lg">
+                            <thead class="bg-slate-800 text-slate-100 uppercase">
+                                <tr>
+                                    <th class="p-3 border-b">Criterio de Evaluación</th>
+                                    <th class="p-3 border-b">Excelente (100% - 91%)</th>
+                                    <th class="p-3 border-b">Satisfactorio (75% - 60%)</th>
+                                    <th class="p-3 border-b">Insuficiente (< 60%)</th>
+                                    <th class="p-3 border-b text-center">Ptos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-600">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 border-b font-bold text-slate-900">Planteamiento Analítico</td>
+                                    <td class="p-3 border-b">Resuelve analíticamente y simplifica perfectamente todas las integrales de inversión estocástica.</td>
+                                    <td class="p-3 border-b">Escribe las fórmulas correctamente, pero presenta leves fallas de notación en el reporte PDF.</td>
+                                    <td class="p-3 border-b">Ecuaciones e integrales incorrectas que desvirtúan el modelado matemático.</td>
+                                    <td class="p-3 border-b text-center font-semibold">30</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 border-b font-bold text-slate-900">Programación en Excel</td>
+                                    <td class="p-3 border-b">Planilla de cálculo programada de forma impecable con sintaxis limpia y referencias absolutas correctas.</td>
+                                    <td class="p-3 border-b">Implementa los modelos en Excel, pero tiene errores menores en la replicación o cálculo condicional.</td>
+                                    <td class="p-3 border-b">Errores lógicos de sintaxis que invalidan los números aleatorios generados.</td>
+                                    <td class="p-3 border-b text-center font-semibold">40</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 border-b font-bold text-slate-900">Análisis Crítico</td>
+                                    <td class="p-3 border-b">Entrega reporte con análisis estadístico completo (medias, desviaciones) y justificación de uso de SIMIO.</td>
+                                    <td class="p-3 border-b">Muestra las estadísticas descriptivas sin interpretar en profundidad su impacto industrial.</td>
+                                    <td class="p-3 border-b">No entrega informe o carece por completo de análisis reflexivo de los resultados.</td>
+                                    <td class="p-3 border-b text-center font-semibold">30</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTONES DE NAVEGACIÓN Y FOOTER -->
+            <div class="mt-8 border-t border-slate-100 pt-6 flex items-center justify-between">
+                <button id="prevBtn" onclick="prevSlide()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-sm flex items-center gap-2 transition duration-200">
+                    <i class="fa-solid fa-arrow-left"></i> Anterior
+                </button>
+                <div class="text-xs text-slate-400 font-bold uppercase tracking-widest" id="slideIndicator">
+                    Diapositiva 1 de 8
+                </div>
+                <button id="nextBtn" onclick="nextSlide()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-sm flex items-center gap-2 shadow-md shadow-indigo-100 transition duration-200">
+                    Siguiente <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TEORÍA MODAL OVERLAY (VENTANA EMERGENTE) -->
+    <div id="theoryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 px-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="theoryContent">
+            <!-- Modal Header -->
+            <div class="bg-indigo-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="serif-title text-lg font-bold flex items-center gap-2" id="theoryModalTitle">
+                    <i class="fa-solid fa-graduation-cap"></i> Breve Teoría del Método
+                </h3>
+                <button onclick="closeTheoryModal()" class="text-indigo-200 hover:text-white transition text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="p-6 md:p-8 overflow-y-auto max-h-[70vh] prose prose-slate text-sm text-slate-600 leading-relaxed space-y-4" id="theoryModalBody">
+                <!-- Se inyectará dinámicamente -->
+            </div>
+            <!-- Modal Footer -->
+            <div class="bg-slate-50 border-t border-slate-100 px-6 py-4 flex justify-end">
+                <button onclick="closeTheoryModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition">
+                    Cerrar Teoría
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER INSTITUCIONAL -->
+    <footer class="bg-white border-t border-slate-200 px-6 py-4 shadow-sm text-center">
+        <p class="text-xs text-slate-500 font-medium">Taller de Simulación - Mantenimiento de Estándares Académicos y Calidad USS &copy; 2026</p>
+    </footer>
+
+    <!-- LOGICA DE CONTROL DE LA INTERFAZ -->
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 8;
+
+        // Base de datos de Teoría por método
+        const theoryDatabase = {
+            transformada: {
+                title: "Teoría: Método de la Transformada Inversa",
+                html: `
+                    <p>El método de la <strong>Transformada Inversa</strong> es la técnica fundamental y más extendida para generar variables aleatorias continuas. Su funcionamiento se basa en un principio matemático directo:</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 my-3 font-semibold text-center text-slate-800">
+                        Si $X$ es una variable aleatoria continua con función de distribución acumulada continua y estrictamente creciente $F(x)$, entonces la variable aleatoria $U = F(X)$ sigue una distribución Uniforme $U(0,1)$.
+                    </div>
+                    <p><strong>Pasos del Algoritmo analítico:</strong></p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>Definir la función de densidad de probabilidad $f(x)$ del proceso real.</li>
+                        <li>Integrar para obtener la función de distribución acumulada: $F(x) = \\int_{-\\infty}^x f(t) dt$.</li>
+                        <li>Igualar la función acumulada a un número pseudoaleatorio uniforme $R \\sim U(0,1)$, es decir, $F(x) = R$.</li>
+                        <li>Despejar analíticamente la variable de interés: $x = F^{-1}(R)$.</li>
+                    </ol>
+                    <p>Es el método predilecto para modelar distribuciones cuyas funciones acumuladas son fácilmente invertibles (como la <strong>Exponencial</strong>, <strong>Uniforme</strong> y <strong>Triangular</strong>). En el Ejercicio 1, aplicamos esta lógica para simular los arribos exponenciales de camiones.</p>
+                `
+            },
+            composicion: {
+                title: "Teoría: Método de Composición (Mezclas)",
+                html: `
+                    <p>El método de <strong>Composición o Mezclas</strong> se utiliza cuando la función de densidad de probabilidad $f(x)$ de la variable bajo estudio es compleja, pero puede expresarse como una combinación lineal o suma ponderada de $n$ subdistribuciones de probabilidad individuales más sencillas:</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 my-3 font-semibold text-center text-slate-800">
+                        $$f(x) = \\sum_{i=1}^n p_i \\cdot f_i(x) \\quad \\text{con } \\sum_{i=1}^n p_i = 1$$
+                    </div>
+                    <p>Donde cada $p_i$ representa la probabilidad asociada al "área" o peso de la rama $i$, y $f_i(x)$ representa la distribución estocástica de esa rama.</p>
+                    <p><strong>Pasos del Algoritmo analítico:</strong></p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>Generar un primer número aleatorio $R_1 \\sim U(0,1)$ para seleccionar cuál de las $n$ distribuciones $f_i(x)$ se utilizará (basado en las probabilidades de ponderación $p_i$).</li>
+                        <li>Generar un segundo número aleatorio independiente $R_2 \\sim U(0,1)$.</li>
+                        <li>Muestrear el valor final de la variable aleatoria $X$ aplicando el método de la transformada inversa sobre la distribución específica seleccionada $f_i(x)$ usando el valor $R_2$.</li>
+                    </ol>
+                    <p>En el Ejercicio 2, este método nos permite segmentar el comportamiento de un operario logístico dependiendo de si la pieza inspeccionada presenta un defecto simple (40% de probabilidad) o complejo (60% de probabilidad).</p>
+                `
+            },
+            convolucion: {
+                title: "Teoría: Método de Convolución",
+                html: `
+                    <p>El método de <strong>Convolución</strong> se aprovecha de las propiedades aditivas de ciertas variables aleatorias independientes. Se aplica cuando la variable aleatoria de interés $X$ se puede estructurar de forma natural como la suma lineal de otras $k$ variables aleatorias independientes e idénticamente distribuidas (i.i.d.) $Y_i$:</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 my-3 font-semibold text-center text-slate-800">
+                        $$X = Y_1 + Y_2 + \\dots + Y_k$$
+                    </div>
+                    <p>En lugar de intentar calcular analíticamente la complicada función de densidad acumulada de $X$, el algoritmo genera secuencialmente $k$ números pseudoaleatorios independientes para calcular cada $Y_i$, sumándolos al final para consolidar el resultado estocástico de la convolución.</p>
+                    <p><strong>Ejemplos Clásicos en Simulación:</strong></p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Distribución Erlang-$k$:</strong> Es la convolución de $k$ variables exponenciales independientes con la misma tasa de servicio (como en el Ejercicio 3).</li>
+                        <li><strong>Distribución Normal (Aproximación):</strong> Sumando 12 variables uniformes independientes $U(0,1)$ se puede aproximar de manera muy rápida un comportamiento Normal gracias al Teorema del Límite Central.</li>
+                        <li><strong>Distribución Binomial:</strong> Convolución de $n$ ensayos de Bernoulli independientes.</li>
+                    </ul>
+                `
+            },
+            aceptacion: {
+                title: "Teoría: Método de Aceptación y Rechazo (Von Neumann)",
+                html: `
+                    <p>El método de <strong>Aceptación y Rechazo</strong>, propuesto por John von Neumann, es el algoritmo alternativo por excelencia cuando la función de distribución acumulada de una variable continua es imposible o extremadamente costosa de invertir de forma analítica.</p>
+                    <p>Requiere acotar la función de densidad compleja $f(x)$ sobre su dominio $[a,b]$ utilizando una función mayorante simple $g(x)$ multiplicada por una constante de escala $M$, de forma que se cumpla la condición:</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 my-3 font-semibold text-center text-slate-800">
+                        $$M \\cdot g(x) \\ge f(x) \\quad \\forall x \\in [a,b]$$
+                    </div>
+                    <p><strong>Pasos del Algoritmo de Muestreo:</strong></p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>Generar un candidato $x$ de la distribución de propuesta $g(x)$ usando un número pseudoaleatorio $R_1$. (Si $g(x)$ es uniforme sobre $[a,b]$, entonces $x = a + (b-a)R_1$).</li>
+                        <li>Generar un número de validación independiente $R_2 \\sim U(0,1)$.</li>
+                        <li>Evaluar la probabilidad de aceptación: Si $R_2 \\le \\frac{f(x)}{M \\cdot g(x)}$, se <strong>acepta</strong> el valor y se asigna $X = x$.</li>
+                        <li>De lo contrario, el candidato se <strong>rechaza</strong> y se descarta el intento, retornando inmediatamente al paso 1 para realizar una nueva iteración.</li>
+                    </ol>
+                    <p>En el Ejercicio 4, utilizamos este descarte probabilístico bidimensional para muestrear una densidad asimétrica sin necesidad de calcular su integral inversa analítica.</p>
+                `
+            }
+        };
+
+        // Función para abrir el modal de teoría
+        function openTheoryModal(methodKey) {
+            const modal = document.getElementById('theoryModal');
+            const content = document.getElementById('theoryContent');
+            const titleElem = document.getElementById('theoryModalTitle');
+            const bodyElem = document.getElementById('theoryModalBody');
+
+            const theoryData = theoryDatabase[methodKey];
+            if (!theoryData) return;
+
+            // Inyectar datos en el modal
+            titleElem.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> ${theoryData.title}`;
+            bodyElem.innerHTML = theoryData.html;
+
+            // Mostrar el modal con transiciones fluidas de Tailwind
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100', 'pointer-events-auto');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+
+            // Renderizar la matemática del LaTeX inyectado dinámicamente con MathJax
+            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                MathJax.typesetPromise([bodyElem]).catch((err) => console.log('MathJax error:', err));
+            }
+        }
+
+        // Función para cerrar el modal de teoría
+        function closeTheoryModal() {
+            const modal = document.getElementById('theoryModal');
+            const content = document.getElementById('theoryContent');
+
+            modal.classList.remove('opacity-100', 'pointer-events-auto');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+        }
+
+        // Cerrar modal al hacer clic fuera del contenedor blanco
+        document.getElementById('theoryModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTheoryModal();
+            }
+        });
+
+        // Control de navegación de diapositivas
+        function goToSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+            
+            // Ocultar todas las slides
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => slide.classList.remove('active'));
+
+            // Mostrar la seleccionada
+            slides[index].classList.add('active');
+            currentSlide = index;
+
+            // Actualizar botones de navegación lateral
+            const buttons = document.querySelectorAll('.menu-btn');
+            buttons.forEach((btn, i) => {
+                if (i === index) {
+                    btn.className = "menu-btn w-full text-left px-3 py-2 text-sm font-semibold rounded-lg bg-indigo-50 text-indigo-900 border-l-4 border-indigo-600 flex items-center gap-2";
+                } else {
+                    btn.className = "menu-btn w-full text-left px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 flex items-center gap-2";
+                }
+            });
+
+            // Controlar visibilidad de botones Anterior/Siguiente
+            document.getElementById('prevBtn').style.visibility = index === 0 ? 'hidden' : 'visible';
+            document.getElementById('nextBtn').innerHTML = index === totalSlides - 1 ? 'Finalizar <i class="fa-solid fa-flag-checkered"></i>' : 'Siguiente <i class="fa-solid fa-arrow-right"></i>';
+
+            // Actualizar barra de progreso e indicador numérico
+            document.getElementById('slideIndicator').innerText = `Diapositiva ${index + 1} de ${totalSlides}`;
+            document.getElementById('progressBar').style.width = `${((index + 1) / totalSlides) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                goToSlide(currentSlide + 1);
+            } else {
+                showFinalNotification();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                goToSlide(currentSlide - 1);
+            }
+        }
+
+        // Navegación por teclado (Flechas)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Control de pestañas internas (Matemática vs Excel)
+        function switchTab(exerciseId, tabType) {
+            const tabsContainer = document.getElementById(exerciseId);
+            const buttons = tabsContainer.querySelectorAll('.tab-btn');
+            
+            buttons.forEach(btn => {
+                if (btn.outerHTML.includes(tabType)) {
+                    btn.className = "tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600";
+                } else {
+                    btn.className = "tab-btn px-4 py-2 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-800";
+                }
+            });
+
+            const contentMath = document.getElementById(`${exerciseId}-math`);
+            const contentExcel = document.getElementById(`${exerciseId}-excel`);
+
+            if (tabType === 'math') {
+                contentMath.classList.remove('hidden');
+                contentExcel.classList.add('hidden');
+            } else {
+                contentMath.classList.add('hidden');
+                contentExcel.classList.remove('hidden');
+            }
+        }
+
+        // Simulación Dinámica Interactiva para el Widget lateral
+        function runWidgetSim() {
+            const rInput = parseFloat(document.getElementById('widgetR').value);
+            if (isNaN(rInput) || rInput < 0 || rInput >= 1) {
+                alert("Por favor ingrese un número pseudoaleatorio válido en el rango [0, 1)");
+                return;
+            }
+
+            // Ejercicio 1: Exponencial con lambda=0.5
+            const expVal = -2 * Math.log(1 - rInput);
+            document.getElementById('expResult').innerText = expVal.toFixed(4);
+
+            // Ejercicio 2: Composición
+            let compVal = 0;
+            if (rInput <= 0.40) {
+                // Uniforme 1 [1, 3] -> x = 1 + R * 2
+                compVal = 1 + rInput * 2;
+            } else {
+                // Uniforme 2 [4, 9] -> x = 4 + R * 5
+                compVal = 4 + rInput * 5;
+            }
+            document.getElementById('compResult').innerText = compVal.toFixed(4);
+
+            // Ejercicio 3: Convolución (Asumimos 3 variables con R_i basados en desplazamientos de rInput)
+            const r2 = (rInput + 0.17) % 1;
+            const r3 = (rInput + 0.53) % 1;
+            const convVal = -1 * (Math.log(1 - rInput) + Math.log(1 - r2) + Math.log(1 - r3));
+            document.getElementById('convResult').innerText = convVal.toFixed(4);
+
+            document.getElementById('widgetResults').classList.remove('hidden');
+        }
+
+        // Mensaje de fin del taller
+        function showFinalNotification() {
+            const container = document.getElementById('slidesContainer');
+            container.innerHTML = `
+                <div class="text-center py-12 px-4 max-w-lg mx-auto">
+                    <div class="text-emerald-500 text-6xl mb-4">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h2 class="serif-title text-3xl font-bold text-slate-900 mb-2">¡Taller Estructurado con Éxito!</h2>
+                    <p class="text-sm text-slate-600 mb-6">Todos los módulos analíticos de simulación manual han sido revisados. Asegúrese de enviar su planilla Excel y reporte PDF antes del cierre de la plataforma.</p>
+                    <button onclick="location.reload()" class="px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg text-sm transition hover:bg-indigo-700 shadow-md">
+                        Volver a Empezar
+                    </button>
+                </div>
+            `;
+        }
+
+        // Inicializar botón Anterior oculto
+        document.getElementById('prevBtn').style.visibility = 'hidden';
+    </script>
+</body>
+</html>
