@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solemne I - Taller de Simulación</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --white: #ffffff;
+            --danger: #9a3412;
+            --success: #15803d;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            border-bottom: 4px solid var(--primary);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .info-item strong {
+            display: block;
+            color: var(--primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            color: var(--primary);
+            border-left: 5px solid var(--accent);
+            padding-left: 1rem;
+            margin-top: 2.5rem;
+            font-size: 1.5rem;
+        }
+
+        .context-box {
+            background-color: #eff6ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--secondary);
+            margin: 1.5rem 0;
+        }
+
+        .context-box p {
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--white);
+        }
+
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 0.85rem;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .demand-section {
+            background-color: #f0f9ff;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--secondary);
+            margin: 2rem 0;
+        }
+
+        .demand-table {
+            max-width: 500px;
+            margin: 1rem auto;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert {
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: var(--danger);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .template-box {
+            background-color: #f0fdf4;
+            border: 1px dashed var(--success);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .important-note {
+            border: 2px solid var(--danger);
+            background-color: #fff1f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .step-tag {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            background: var(--accent);
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        @media print {
+            .container { box-shadow: none; margin: 0; max-width: 100%; }
+            .info-panel { border: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="badge">EVALUACIÓN SUMATIVA I</div>
+        <h1>Solemne I: Taller de Simulación</h1>
+        <div class="subtitle">Optimización de Capacidad Técnica mediante Montecarlo</div>
+    </header>
+
+    <div class="info-panel">
+        <div class="info-item"><strong>Disponible desde</strong>25 de julio de 2026</div>
+        <div class="info-item"><strong>Fecha de Entrega</strong>Domingo 12 de abril de 2026</div>
+        <div class="info-item"><strong>Formato Entregable</strong>Informe PDF + Planilla Excel</div>
+        <div class="info-item"><strong>Modalidad</strong>Grupal (Máx. 2 personas)</div>
+    </div>
+
+    <h2>1. Contexto Detallado del Caso: "Servicios Industriales La Papa Mecánica SpA"</h2>
+    <div class="context-box" style="padding: 1.5rem;">
+        <p><strong>La Empresa:</strong> "Servicios Industriales La Papa Mecánica SpA" es una compañía líder en el mantenimiento correctivo de maquinaria agrícola pesada (cosechadoras de grano y tractores de alta gama). Operan en un entorno de alta criticidad, donde el tiempo de inactividad de una máquina durante la cosecha puede costar millones a los agricultores. </p>
+        <p><strong>La Problemática:</strong> La empresa trabaja bajo contratos de "Nivel de Disponibilidad". Cuando una máquina falla, el cliente emite una solicitud. Si la empresa no tiene capacidad técnica para atender la solicitud el mismo día (por exceso de demanda o porque los técnicos están ocupados en fallas muy largas), incurre en una <strong>Multa Severa por Incumplimiento</strong>. </p>
+        <p><strong>El Dilema de Capacidad:</strong> Actualmente cuentan con una <strong>Capacidad Actual de 2 servicios simultáneos</strong> (2 equipos técnicos). La gerencia debe decidir si invertir en un tercer equipo (Backup) que aumente la capacidad a 3 servicios diarios. Sin embargo, este equipo tiene un costo fijo diario que debe pagarse trabaje o no.</p>
+    </div>
+
+    <h2>2. Lógica del Flujo de Atención y Aleatoriedad</h2>
+    <div class="context-box" style="background-color: #f8fafc; border-left: 4px solid var(--accent);">
+        <p><strong>Paso A (Demanda):</strong> Al inicio de cada día, se genera aleatoriamente cuántas solicitudes de reparación llegan al centro de despacho. Esta es una variable discreta basada en datos históricos.</p>
+        <p><strong>Paso B (Duración del Servicio):</strong> Una vez aceptada la solicitud, el tiempo que el técnico tarda en reparar la máquina no es constante, ya que depende de la gravedad de la falla (mecánica, electrónica o hidráulica). <strong>Aquí se aplica la Distribución Triangular:</strong> cada servicio individual consumirá una cantidad de horas aleatoria. </p>
+        <p><strong>Paso C (Restricción):</strong> Si la demanda diaria supera la capacidad física (2 servicios) o si el tiempo total requerido excede los recursos disponibles, los servicios no atendidos se consideran "quiebres" y generan la multa respectiva dentro de la <strong>jornada laboral de 8 horas</strong>.</p>
+    </div>
+
+    <h2>3. Datos de Entrada del Modelo</h2>
+
+    <div class="demand-section">
+        <h3 style="text-align: center; margin-top: 0; color: var(--primary);">DEMANDA DIARIA DE SERVICIOS (VARIABLE DISCRETA)</h3>
+        <table class="demand-table">
+            <thead>
+                <tr><th>Pedidos Recibidos (N)</th><th>Probabilidad P(N)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>0 pedidos</strong></td><td>10%</td></tr>
+                <tr><td><strong>1 pedido</strong></td><td>30%</td></tr>
+                <tr><td><strong>2 pedidos</strong></td><td>35%</td></tr>
+                <tr><td><strong>3 pedidos</strong></td><td>20%</td></tr>
+                <tr><td><strong>4 pedidos</strong></td><td>5%</td></tr>
+            </tbody>
+            <tfoot>
+                <tr style="background: #e2e8f0; font-weight: bold;">
+                    <td>TOTAL</td><td>100%</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <h3>A. Parámetros de Tiempo y Económicos Generales</h3>
+    <ul>
+        <li><strong>Tiempos de Reparación:</strong> Distribución Triangular (a=1.5, m=4.0, b=7.5 horas por cada servicio).</li>
+        <li><strong>Ingreso Neto por Servicio:</strong> $215.000 (margen bruto por atención completada).</li>
+        <li><strong>Capacidad del Sistema Actual:</strong> 2 servicios simultáneos (2 técnicos).</li>
+        <li><strong>Costo Fijo Diario Operación Actual:</strong> $200.000 (costo total por los 2 técnicos actuales).</li>
+        <li><strong>Jornada Laboral:</strong> 8 horas máximo.</li>
+    </ul>
+
+    <div class="alert">
+        <h3>B. ASIGNACIÓN ESPECÍFICA POR GRUPO</h3>
+        <table>
+            <thead>
+                <tr><th>Grupo</th><th>Costo Multa (por pedido fuera de plazo)</th><th>Costo Fijo Diario Backup</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Grupo 1</strong></td><td>$850.000</td><td>$110.000</td></tr>
+                <tr><td><strong>Grupo 2</strong></td><td>$980.000</td><td>$85.000</td></tr>
+                <tr><td><strong>Grupo 3</strong></td><td>$800.000</td><td>$125.000</td></tr>
+                <tr><td><strong>Grupo 4</strong></td><td>$1.050.000</td><td>$95.000</td></tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <h2>4. Pregunta Final de Decisión bajo Incertidumbre</h2>
+    <div class="alert" style="background-color: #fef2f2; color: #7f1d1d; border: 2px solid #f87171;">
+        <p style="margin-top: 0;"><strong>A. Pregunta de Decisión Base:</strong> Basado en su simulación de 1,000 días en Excel: <strong>¿Recomienda contratar el equipo de Backup para su grupo?</strong> Justifique analizando la Utilidad Diaria Promedio, la probabilidad de incurrir en multas y la <strong>validación estadística de sus resultados</strong>.</p>
+        <p style="margin-bottom: 0; margin-top: 1rem; border-top: 1px dashed #fca5a5; padding-top: 1rem;"><strong>B. Pregunta Adicional de Sensibilidad (Umbral de Multa):</strong> En caso de que la utilidad diaria final resulte ser negativa o no justifique la inversión con los costos actuales: <strong>¿A partir de qué valor del costo de la multa la utilidad pasaría a ser positiva al momento de contratar el equipo de Backup?</strong> Calcule y determine el valor umbral de la multa a partir del cual se vuelve conveniente o financieramente indispensable contratar el equipo de respaldo frente a un incremento en las penalizaciones por incumplimiento.</p>  
+    </div>
+
+    <h2>5. Estructura del Informe Escrito</h2>
+    <p>El informe debe ser entregado en formato <strong>PDF</strong> junto con la planilla Excel. Debe presentar una redacción profesional, ordenada y estructurada en las siguientes secciones obligatorias:</p>
+    <div class="template-box">
+        <ul style="list-style-type: none; padding: 0;">
+            <li style="margin-bottom: 12px;"><strong>1. Carátula e Introducción:</strong> Identificación del grupo, número de grupo asignado y resumen de la problemática operativa de "La Papa Mecánica SpA".</li>
+            <li style="margin-bottom: 12px;"><strong>2. Paso 1 (Definición de Variables y Parámetros):</strong> Clasificación clara de variables estocásticas (demanda, tiempos) y parámetros fijos especificando los datos asignados a su grupo.</li>
+            <li style="margin-bottom: 12px;"><strong>3. Paso 2 (Distribuciones de Probabilidad):</strong> Especificación y justificación técnica de la distribución empírica para la demanda y la distribución triangular para los tiempos de reparación.</li>
+            <li style="margin-bottom: 12px;"><strong>4. Paso 3 (Formulación Probabilística):</strong> Construcción formal de la Función de Distribución Acumulada (FDA) y tabla de rangos de números aleatorios.</li>
+            <li style="margin-bottom: 12px;"><strong>5. Paso 4 (Generación y Mapeo):</strong> Explicación matemática y analítica del método de la Transformada Inversa aplicado a la distribución triangular y búsqueda discreta en Excel.</li>
+            <li style="margin-bottom: 12px;"><strong>6. Paso 5 (Implementación en Excel y Lógica de Operación):</strong> Descripción de la arquitectura de la planilla de 1,000 iteraciones, explicando cómo se modeló la restricción de 8 horas de jornada y la capacidad de los servidores. Debe incluir capturas de pantalla de las fórmulas clave.</li>
+            <li style="margin-bottom: 12px;"><strong>7. Validación Estadística (Rigurosidad):</strong> Presentación del cálculo del <strong>Intervalo de Confianza al 95%</strong> o la prueba de hipótesis ($H_0$) sobre la Utilidad Diaria Final, interpretando la precisión de la simulación.</li>
+            <li style="margin-bottom: 12px;"><strong>8. Análisis Económico y Decisión Final:</strong> Comparación cuantitativa entre el escenario de Capacidad 2 vs. Capacidad 3 (con backup), evaluando el trade-off entre costo fijo y multas, con la recomendación final a la gerencia.</li>
+        </ul>
+    </div>
+
+    <div class="important-note">
+        <strong>INSTRUCCIONES DE ENTREGA:</strong> Deben subir a la plataforma dos archivos a más tardar el <strong>domingo 12 de abril de 2026</strong>: 
+        <br>1) El Informe escrito en formato PDF.
+        <br>2) La Planilla Excel funcional con las 1,000 iteraciones (sin macros). Ambos integrantes recibirán la misma calificación.
+    </div>
+
+    <h2>6. Rúbrica de Evaluación</h2>
+    <table>
+        <thead>
+            <tr><th style="width: 20%;">Criterio</th><th>Excelente (4 pts)</th><th>Suficiente (2 pts)</th><th>Insuficiente (1 pt)</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Modelado Conceptual (Pasos 1-2)</strong></td>
+                <td>Define variables y parámetros con total precisión técnica según el caso y flujo de servicio.</td>
+                <td>Identifica variables pero presenta omisiones menores en los parámetros técnicos.</td>
+                <td>Confunde la naturaleza de las variables o las distribuciones asignadas.</td>
+            </tr>
+            <tr>
+                <td><strong>Modelado Matemático (Pasos 3-4)</strong></td>
+                <td>Aplica con exactitud el mapeo de intervalos y la lógica de la transformada inversa para la triangular.</td>
+                <td>Presenta errores leves en la acumulación de probabilidades o lógica de búsqueda.</td>
+                <td>Falla gravemente en la formulación probabilística o el uso de la transformada inversa.</td>
+            </tr>
+            <tr>
+                <td><strong>Paso 5 (Ejecución en Excel)</strong></td>
+                <td>Planilla Excel lógica, dinámica y sin errores. Refleja correctamente el flujo de 8 horas y 1,000 iteraciones.</td>
+                <td>Excel funcional pero con errores de referencia o uso de valores fijos (no dinámico).</td>
+                <td>Excel desorganizado, errores de cálculo o no automatiza las iteraciones.</td>
+            </tr>
+            <tr>
+                <td><strong>Rigurosidad Estadística</strong></td>
+                <td>Valida la utilidad diaria mediante test de hipótesis (valida H0) o Intervalo de Confianza al 95%, justificando correctamente la representatividad de la muestra.</td>
+                <td>Realiza el cálculo estadístico pero la justificación o interpretación de los intervalos es superficial.</td>
+                <td>No realiza pruebas estadísticas de validez sobre los resultados de salida (utilidad diaria).</td>
+            </tr>
+            <tr>
+                <td><strong>Análisis y Decisión Final</strong></td>
+                <td>Decisión fundamentada en los datos de la simulación, análisis de riesgo/beneficio y rigor estadístico.</td>
+                <td>Toma la decisión pero la justificación basada en los datos simulados es débil.</td>
+                <td>Decisión puramente intuitiva; ignora los resultados numéricos de la simulación.</td>
+            </tr>
+            <tr>
+                <td><strong>Estructura y Redacción del Informe</strong></td>
+                <td>Informe escrito impecable, estructurado según las 8 secciones solicitadas, con lenguaje técnico adecuado, tablas explicativas y gráficos integrados.</td>
+                <td>Informe estructurado pero con vacíos menores en la explicación técnica o formato desordenado.</td>
+                <td>Informe incompleto, falto de estructura o con deficiencias graves de redacción y formato.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
