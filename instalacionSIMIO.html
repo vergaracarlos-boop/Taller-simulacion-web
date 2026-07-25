@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Instalación y Licenciamiento de Simio | USS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0f172a',
+                            900: '#0a0f1d',
+                        },
+                        brand: {
+                            blue: '#1e3a8a',
+                            cyan: '#0284c7',
+                            accent: '#f59e0b',
+                            light: '#f8fafc'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Fira Code', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .slide {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out, transform 0.3s ease-out;
+            transform: translateY(10px);
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .step-item {
+            opacity: 0.3;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        .step-item.revealed {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0284c7;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-navy-900 text-slate-100 font-sans antialiased h-screen overflow-hidden flex flex-col justify-between selection:bg-brand-cyan selection:text-white">
+
+    <!-- Top Navigation & Header -->
+    <header class="w-full bg-navy-800/80 backdrop-blur border-b border-slate-800 px-6 py-3 flex justify-between items-center z-50">
+        <div class="flex items-center space-x-3">
+            <span class="bg-brand-cyan text-white text-xs font-bold px-2.5 py-1 rounded-md tracking-wider">USS</span>
+            <span class="text-sm font-semibold text-slate-300">Taller de Simulación | Guía Simio v20.290</span>
+        </div>
+        <div class="flex items-center space-x-4 text-xs text-slate-400">
+            <span id="slide-indicator" class="bg-slate-800 px-3 py-1 rounded-full text-slate-200 font-mono">1 / 7</span>
+            <button onclick="toggleFullscreen()" title="Pantalla completa (F)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 transition">
+                <i data-lucide="maximize-2" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Presentation Container -->
+    <main class="flex-1 relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-center overflow-hidden">
+
+        <!-- Slide 1: Portada -->
+        <section class="slide active flex-col justify-center w-full h-full max-w-5xl">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                <div class="md:col-span-8 space-y-6">
+                    <div class="inline-flex items-center space-x-2 bg-blue-950/60 border border-blue-800 text-brand-cyan px-3 py-1.5 rounded-full text-xs font-medium">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>Simulación de Sistemas — Universidad San Sebastián</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">
+                        Instalación y Licenciamiento de <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-blue-400">Simio Academic</span>
+                    </h1>
+                    <p class="text-lg text-slate-300 max-w-2xl font-normal leading-relaxed">
+                        Guía práctica paso a paso para configurar tu entorno de trabajo de simulación sin contratiempos.
+                    </p>
+                    <div class="pt-4 flex flex-wrap items-center gap-4">
+                        <button onclick="nextSlide()" class="bg-brand-cyan hover:bg-sky-500 text-white font-bold px-6 py-3 rounded-lg shadow-lg shadow-sky-900/30 transition flex items-center space-x-2">
+                            <span>Comenzar Guía</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                        <span class="text-xs text-slate-400 flex items-center gap-1">
+                            <i data-lucide="keyboard" class="w-4 h-4"></i> Usa las flechas o Espacio para navegar
+                        </span>
+                    </div>
+                </div>
+                <div class="md:col-span-4 hidden md:flex justify-center">
+                    <div class="relative w-64 h-64 bg-gradient-to-tr from-brand-blue to-brand-cyan rounded-2xl p-6 shadow-2xl flex flex-col justify-between border border-sky-400/20">
+                        <i data-lucide="box" class="w-16 h-16 text-white/80"></i>
+                        <div>
+                            <span class="text-xs uppercase tracking-widest text-sky-200">Versión Oficial</span>
+                            <div class="text-2xl font-black font-mono text-white mt-1">v20.290</div>
+                            <div class="text-xs text-sky-100/70 mt-2">Grant ID: AGR-20260411</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Agenda -->
+        <section class="slide flex-col justify-center w-full h-full max-w-5xl">
+            <div class="mb-6">
+                <span class="text-brand-cyan text-xs font-bold uppercase tracking-wider">Estructura del Taller</span>
+                <h2 class="text-3xl font-extrabold text-white mt-1">Agenda de la Clase</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div onclick="goToSlide(3)" class="p-4 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-brand-cyan rounded-xl transition cursor-pointer flex items-center space-x-4">
+                    <div class="p-3 bg-brand-cyan/10 text-brand-cyan rounded-lg font-bold font-mono">01</div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Lectura Previa USS</h3>
+                        <p class="text-xs text-slate-400">Términos del convenio académico Simio</p>
+                    </div>
+                </div>
+                <div onclick="goToSlide(4)" class="p-4 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-brand-cyan rounded-xl transition cursor-pointer flex items-center space-x-4">
+                    <div class="p-3 bg-brand-cyan/10 text-brand-cyan rounded-lg font-bold font-mono">02</div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Descarga del Software</h3>
+                        <p class="text-xs text-slate-400">Obtención del ejecutable v20.290</p>
+                    </div>
+                </div>
+                <div onclick="goToSlide(5)" class="p-4 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-brand-cyan rounded-xl transition cursor-pointer flex items-center space-x-4">
+                    <div class="p-3 bg-brand-cyan/10 text-brand-cyan rounded-lg font-bold font-mono">03</div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Activación de Licencia</h3>
+                        <p class="text-xs text-slate-400">Ingreso de la Common Student Key</p>
+                    </div>
+                </div>
+                <div onclick="goToSlide(6)" class="p-4 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-brand-cyan rounded-xl transition cursor-pointer flex items-center space-x-4">
+                    <div class="p-3 bg-brand-cyan/10 text-brand-cyan rounded-lg font-bold font-mono">04</div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Compatibilidad y Reglas</h3>
+                        <p class="text-xs text-slate-400">Uso no comercial y versión guardada</p>
+                    </div>
+                </div>
+                <div onclick="goToSlide(7)" class="p-4 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-brand-cyan rounded-xl transition cursor-pointer flex items-center space-x-4">
+                    <div class="p-3 bg-brand-cyan/10 text-brand-cyan rounded-lg font-bold font-mono">05</div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Resolución de Errores</h3>
+                        <p class="text-xs text-slate-400">Diagnóstico de fallas y soporte</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Lectura Previa (Documento Insertado) -->
+        <section class="slide flex-col justify-center w-full h-full max-w-5xl">
+            <div class="mb-4">
+                <span class="text-brand-cyan text-xs font-bold uppercase tracking-wider">Documento Oficial</span>
+                <h2 class="text-3xl font-extrabold text-white mt-1">Lectura Previa: Correo de Convenio USS</h2>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 h-[380px] overflow-y-auto space-y-3 font-mono text-xs text-slate-300 leading-relaxed shadow-inner">
+                <div class="pb-3 border-b border-slate-700 flex justify-between items-center text-slate-400">
+                    <span><strong>De:</strong> Simio Academic Licensing</span>
+                    <span><strong>Para:</strong> Universidad San Sebastián (USS)</span>
+                </div>
+                <p class="text-emerald-400 font-bold">[GRANT APPROVED] Simio Academic Grant - San Sebastian University USS</p>
+                <p><strong>Grant Identifier:</strong> AG-20240429-00896 | <strong>Award Number:</strong> AGR-20260411-XXXXX</p>
+                <p class="bg-navy-900 p-2 rounded border border-slate-700">
+                    <strong>Common Student License Key:</strong> 7443-4519-0971-7647 (50 Seats Node-Locked)<br>
+                    <strong>Download URL:</strong> https://cdn.simio.com/software/Simio-20.290.53766.zip
+                </p>
+                <p class="text-slate-400">
+                    IMPORTANT: License keys are for exclusive academic/non-commercial use by students affiliated with USS. Do not post license keys publicly. Models saved in newer versions are not backwards compatible with older releases.
+                </p>
+            </div>
+        </section>
+
+        <!-- Slide 4: Contenido Clave 1 - Descarga -->
+        <section class="slide flex-col justify-center w-full h-full max-w-5xl" data-steps="3">
+            <div class="mb-6">
+                <span class="text-brand-cyan text-xs font-bold uppercase tracking-wider">Paso 1 de 4</span>
+                <h2 class="text-3xl font-extrabold text-white mt-1">Descarga el Software Simio</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                <div class="md:col-span-7 space-y-4">
+                    <div class="step-item p-4 bg-slate-800 border border-slate-700 rounded-xl flex items-start space-x-3">
+                        <div class="bg-brand-cyan text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Descarga el instalador comprimido</h4>
+                            <p class="text-xs text-slate-400 mt-1">Obtén el archivo Zip oficial directamente desde los servidores de Simio.</p>
+                        </div>
+                    </div>
+                    <div class="step-item p-4 bg-slate-800 border border-slate-700 rounded-xl flex items-start space-x-3">
+                        <div class="bg-brand-cyan text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Extrae la carpeta ZIP completa</h4>
+                            <p class="text-xs text-slate-400 mt-1">No ejecutes la instalación directamente dentro del archivo comprimido.</p>
+                        </div>
+                    </div>
+                    <div class="step-item p-4 bg-slate-800 border border-slate-700 rounded-xl flex items-start space-x-3">
+                        <div class="bg-brand-cyan text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Ejecuta como Administrador</h4>
+                            <p class="text-xs text-slate-400 mt-1">Haz clic derecho sobre el ejecutable y selecciona "Ejecutar como administrador".</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-5 bg-slate-800/80 p-5 rounded-2xl border border-slate-700 text-center space-y-4">
+                    <i data-lucide="download-cloud" class="w-12 h-12 text-brand-cyan mx-auto"></i>
+                    <div>
+                        <span class="text-xs text-slate-400 block">Enlace directo oficial:</span>
+                        <div class="bg-navy-900 p-2.5 rounded-lg border border-slate-700 font-mono text-xs text-sky-300 break-all mt-2 selection:bg-sky-900">
+                            Simio-20.290.53766.zip
+                        </div>
+                    </div>
+                    <a href="https://cdn.simio.com/software/Simio-20.290.53766.zip" target="_blank" class="inline-flex items-center justify-center space-x-2 w-full bg-brand-cyan hover:bg-sky-500 text-white font-bold py-2.5 px-4 rounded-lg text-xs transition">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span>Descargar ZIP (20.290)</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Contenido Clave 2 - Activación de Licencia -->
+        <section class="slide flex-col justify-center w-full h-full max-w-5xl" data-steps="2">
+            <div class="mb-4">
+                <span class="text-brand-cyan text-xs font-bold uppercase tracking-wider">Paso 2 de 4</span>
+                <h2 class="text-3xl font-extrabold text-white mt-1">Activa tu Licencia de Estudiante</h2>
+            </div>
+            
+            <!-- License Key Callout -->
+            <div class="bg-gradient-to-r from-blue-950 to-slate-800 p-4 rounded-xl border border-brand-cyan/40 mb-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs text-sky-300 font-semibold uppercase tracking-wider">Clave Común de Licencia Estudiantil</span>
+                    <div class="font-mono text-lg font-bold text-white mt-0.5">7443-4519-0971-7647</div>
+                </div>
+                <button onclick="copyKey('7443-4519-0971-7647')" class="bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-600 px-4 py-2 rounded-lg text-xs font-bold flex items-center space-x-2 transition shrink-0">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span id="copy-text">Copiar Clave</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Método A -->
+                <div class="step-item bg-slate-800 p-5 rounded-xl border border-slate-700">
+                    <div class="flex items-center space-x-2 text-brand-cyan font-bold text-sm mb-2">
+                        <span class="bg-brand-cyan/20 px-2 py-0.5 rounded">Ruta A</span>
+                        <span>Ventana Emergente Inicial</span>
+                    </div>
+                    <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
+                        <li>Abre Simio tras completar la instalación.</li>
+                        <li>Haz clic en <strong class="text-white">"Enter your license key..."</strong> (esquina superior derecha).</li>
+                        <li>Pega la clave entregada y presiona <strong class="text-white">"Submit"</strong>.</li>
+                    </ol>
+                </div>
+
+                <!-- Método B -->
+                <div class="step-item bg-slate-800 p-5 rounded-xl border border-slate-700">
+                    <div class="flex items-center space-x-2 text-emerald-400 font-bold text-sm mb-2">
+                        <span class="bg-emerald-500/20 px-2 py-0.5 rounded">Ruta B</span>
+                        <span>Menú Superior de Licencias</span>
+                    </div>
+                    <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
+                        <li>Ve a <strong class="text-white">File &gt; Licensing &gt; Classic Licensing</strong>.</li>
+                        <li>Si no ves la sección, haz clic en <strong class="text-white">"Change license type"</strong> y elige <em>Classic Licensing</em>.</li>
+                        <li>Ingresa la clave en <strong class="text-white">Node-Locked License</strong> y presiona <strong class="text-white">"Activate"</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Contenido Clave 3 - Compatibilidad y Reglas -->
+        <section class="slide flex-col justify-center w-full h-full max-w-5xl">
+            <div class="mb-6">
+                <span class="text-brand-cyan text-xs font-bold uppercase tracking-wider">Paso 3 de 4</span>
+                <h2 class="text-3xl font-extrabold text-white mt-1">Reglas y Compatibilidad de Versión</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Card 1 -->
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-lg flex items-center justify-center mb-3">
+                            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-base">NO Usar Trial Edition</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            La versión "Simio Trial Edition" reemplazó a la Personal Edition. Los modelos hechos en Trial <strong class="text-slate-200">NO abren</strong> con la licencia académica USS.
+                        </p>
+                    </div>
+                    <span class="text-[10px] text-amber-400/80 font-mono mt-4">Regla Académica #1</span>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 bg-brand-cyan/10 text-brand-cyan rounded-lg flex items-center justify-center mb-3">
+                            <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-base">Backwards Compatible</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Simio solo abre modelos creados en versiones iguales o anteriores. Un archivo guardado en versión más nueva no abrirá en software antiguo.
+                        </p>
+                    </div>
+                    <span class="text-[10px] text-brand-cyan/80 font-mono mt-4">Compatibilidad Unidireccional</span>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center mb-3">
+                            <i data-lucide="lock" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-base">Uso Exclusivo Académico</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            La clave asignada está prohibida para uso comercial o público. Queda strictly prohibido publicarla en redes o foros de acceso libre.
+                        </p>
+                    </div>
+                    <span class="text-[10px] text-emerald-400/80 font-mono mt-4">Política de Licencia USS</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: Contenido Clave 4 - Soporte y Diagnóstico -->
+        <section class="slide flex-col justify-center w-full h-full max-w-5xl">
+            <div class="mb-4">
+                <span class="text-brand-cyan text-xs font-bold uppercase tracking-wider">Paso 4 de 4</span>
+                <h2 class="text-3xl font-extrabold text-white mt-1">Resolución de Errores Frecuentes</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- Error Box -->
+                <div class="md:col-span-6 bg-red-950/30 border border-red-500/40 p-5 rounded-xl space-y-3">
+                    <div class="flex items-center space-x-2 text-red-400 font-bold text-sm">
+                        <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+                        <span>Error de Activación -1005</span>
+                    </div>
+                    <div class="bg-navy-900 p-3 rounded font-mono text-xs text-red-300 border border-red-900/50">
+                        "Error requesting activation. Activation key already used (-1005)"
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Este mensaje aparece cuando los 50 cupos asignados a la clave han sido completamente consumidos.
+                    </p>
+                    <div class="bg-slate-800/80 p-3 rounded text-xs text-slate-300">
+                        <strong>Solución:</strong> Notifica de inmediato a tu docente para solicitar la extensión de cupos ante Simio LLC.
+                    </div>
+                </div>
+
+                <!-- Support Resources -->
+                <div class="md:col-span-6 space-y-4">
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-start space-x-3">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-brand-cyan mt-1 shrink-0"></i>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Guía de Troubleshooting</h4>
+                            <p class="text-xs text-slate-400 mt-1">Revisa la documentación oficial de solución de problemas.</p>
+                            <a href="https://www.simio.com/academic-licensing/troubleshooting/" target="_blank" class="text-xs text-brand-cyan underline mt-1 inline-block">simio.com/academic-licensing/troubleshooting</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-start space-x-3">
+                        <i data-lucide="mail" class="w-5 h-5 text-emerald-400 mt-1 shrink-0"></i>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Soporte Directo Simio</h4>
+                            <p class="text-xs text-slate-400 mt-1">Si persiste la falla, envía un correo a <code class="text-slate-200">licensing@simio.com</code> con copia a tu profesor adjuntando:</p>
+                            <ul class="text-[11px] text-slate-300 list-disc list-inside mt-1">
+                                <li>Grant Award: <span class="font-mono text-sky-300">AGR-20260411-XXXXX</span></li>
+                                <li>Captura de pantalla con el error específico</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar & Progress -->
+    <footer class="w-full bg-navy-800/80 backdrop-blur border-t border-slate-800 px-6 py-3 flex justify-between items-center z-50">
+        <div class="flex items-center space-x-2">
+            <button onclick="prevSlide()" class="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition disabled:opacity-30" id="btn-prev">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button onclick="nextSlide()" class="p-2 bg-brand-cyan hover:bg-sky-500 text-white rounded-lg transition disabled:opacity-30" id="btn-next">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-1/3 bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-brand-cyan to-amber-400 h-full w-1/9 transition-all duration-300"></div>
+        </div>
+
+        <div class="text-xs text-slate-400 flex items-center space-x-3">
+            <span>Presiona <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300">F</kbd> Pantalla Completa</span>
+        </div>
+    </footer>
+
+    <!-- Presentation Logic JavaScript -->
+    <script>
+        let currentSlide = 0;
+        let currentStep = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const slideIndicator = document.getElementById('slide-indicator');
+        const progressBar = document.getElementById('progress-bar');
+
+        function updateSlide() {
+            slides.forEach((slide, idx) => {
+                slide.classList.remove('active');
+                if (idx === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Update Steps Reveal in active slide
+            const activeSlideObj = slides[currentSlide];
+            const steps = activeSlideObj.querySelectorAll('.step-item');
+            currentStep = 0;
+            steps.forEach(step => step.classList.remove('revealed'));
+            if (steps.length > 0) {
+                // reveal first step automatically
+                steps[0].classList.add('revealed');
+                currentStep = 1;
+            }
+
+            // Update Nav Counter & Progress Bar
+            slideIndicator.textContent = `${currentSlide + 1} / ${totalSlides}`;
+            const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            // Button States
+            document.getElementById('btn-prev').disabled = (currentSlide === 0);
+            document.getElementById('btn-next').disabled = (currentSlide === totalSlides - 1);
+
+            // Re-initialize lucide icons
+            lucide.createIcons();
+        }
+
+        function nextSlide() {
+            const activeSlideObj = slides[currentSlide];
+            const steps = activeSlideObj.querySelectorAll('.step-item');
+            
+            // Handle step-by-step reveal before moving to next slide
+            if (steps.length > 0 && currentStep < steps.length) {
+                steps[currentStep].classList.add('revealed');
+                currentStep++;
+                return;
+            }
+
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(slideNum) {
+            if (slideNum >= 1 && slideNum <= totalSlides) {
+                currentSlide = slideNum - 1;
+                updateSlide();
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function copyKey(keyText) {
+            navigator.clipboard.writeText(keyText);
+            const copyBtnText = document.getElementById('copy-text');
+            copyBtnText.textContent = "¡Copiado!";
+            setTimeout(() => {
+                copyBtnText.textContent = "Copiar Clave";
+            }, 2000);
+        }
+
+        // Global Keyboard Event Listener
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key >= '1' && e.key <= '9') {
+                const targetSlide = parseInt(e.key);
+                if (targetSlide <= totalSlides) {
+                    goToSlide(targetSlide);
+                }
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+
+        // Initialize presentation
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSlide();
+        });
+    </script>
+</body>
+</html>
