@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solemne I Trimestre 02 del 2026 - Taller de Simulación - Rúbrica de Evaluación</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg: #f1f5f9;
+            --text: #1e293b;
+            --white: #ffffff;
+            --danger: #b91c1c;
+            --success: #15803d;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem 1rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 14px;
+            box-shadow: 0 15px 25px -8px rgba(0, 0, 0, 0.15);
+            padding: 2.5rem;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 0.25rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 0.25rem;
+        }
+
+        h2 {
+            color: var(--primary);
+            border-left: 5px solid var(--accent);
+            padding-left: 0.75rem;
+            margin-top: 2rem;
+            font-size: 1.3rem;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .field label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 0.4rem;
+        }
+
+        select, input[type="date"], textarea {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: var(--white);
+            color: var(--text);
+        }
+
+        textarea { resize: vertical; min-height: 90px; }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        /* Rúbrica interactiva */
+        .rubric-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--white);
+        }
+
+        .rubric-table th, .rubric-table td {
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        .rubric-table th {
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .rubric-table .criteria-name {
+            width: 22%;
+            text-align: left;
+            background: #f1f5f9;
+        }
+
+        .rubric-table .option {
+            cursor: pointer;
+            transition: background 0.15s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .rubric-table .option:hover {
+            background: #eff6ff;
+            box-shadow: inset 0 0 0 2px var(--secondary);
+        }
+
+        .rubric-table .option.selected {
+            background: #dbeafe;
+            box-shadow: inset 0 0 0 2px var(--primary);
+        }
+
+        .rubric-table .option.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .opt-label {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.35rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .opt-desc {
+            font-size: 0.82rem;
+            color: #475569;
+        }
+
+        /* Resultados */
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            background: #eff6ff;
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-top: 1.75rem;
+        }
+
+        .score-box, .grade-box { text-align: center; }
+
+        .score-box .label, .grade-box .label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+        }
+
+        .score-box .value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .grade-box .value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .status {
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 0.35rem 1.1rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status.pending { background: #e2e8f0; color: #475569; }
+        .status.passed { background: #dcfce7; color: var(--success); }
+        .status.failed { background: #fee2e2; color: var(--danger); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            padding: 0.85rem 1.75rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+
+        .btn:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+        .btn-group { margin-top: 1.75rem; text-align: center; }
+
+        .hint {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.75rem;
+            text-align: center;
+        }
+
+        .warning {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #9a3412;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="badge">PLANILLA DE EVALUACIÓN</div>
+        <h1>Solemne I Trimestre 02 del 2026</h1>
+        <div class="subtitle">Taller de Simulación - Rúbrica de Evaluación</div>
+    </header>
+
+    <h2>Estudiantes a Evaluar</h2>
+    <div class="card">
+        <div class="students-grid">
+            <div class="field"><label>Estudiante 1</label><select class="student-select" data-index="0"></select></div>
+            <div class="field"><label>Estudiante 2</label><select class="student-select" data-index="1"></select></div>
+            <div class="field"><label>Estudiante 3</label><select class="student-select" data-index="2"></select></div>
+            <div class="field"><label>Estudiante 4</label><select class="student-select" data-index="3"></select></div>
+        </div>
+        <p class="hint">Cada estudiante puede ser seleccionado una sola vez.</p>
+    </div>
+
+    <h2>Fecha de la Retroalimentación</h2>
+    <div class="card">
+        <div class="meta-grid">
+            <div class="field">
+                <label>Fecha</label>
+                <input type="date" id="eval-date">
+            </div>
+            <div class="field">
+                <label>Observaciones</label>
+                <textarea id="observations" placeholder="Escriba aquí las observaciones del docente..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <h2>Rúbrica de Evaluación</h2>
+    <p class="hint" style="text-align:left;">Haga clic sobre la descripción del nivel que corresponde a cada criterio.</p>
+    <table class="rubric-table">
+        <thead>
+            <tr>
+                <th style="width: 22%;">Criterio</th>
+                <th>Excelente (4 pts)</th>
+                <th>Suficiente (2 pts)</th>
+                <th>Insuficiente (1 pt)</th>
+            </tr>
+        </thead>
+        <tbody id="rubric-body"></tbody>
+    </table>
+
+    <div id="warning" class="warning"></div>
+
+    <div class="results">
+        <div class="score-box">
+            <div class="label">Puntaje Total</div>
+            <div class="value"><span id="total-score">0</span> / 24</div>
+        </div>
+        <div class="grade-box">
+            <div class="label">Calificación</div>
+            <div class="value" id="grade">—</div>
+        </div>
+        <div class="status" id="status">Sin evaluar</div>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn" onclick="downloadPDF()">📄 Descargar PDF (Tamaño Carta)</button>
+    </div>
+    <p class="hint">Escala de dificultad al 60%: desde el puntaje mínimo (6 pts) hasta el 60% del puntaje máximo (14.4 pts) la nota va de 1.0 a 4.0; desde ahí hasta el puntaje máximo (24 pts) la nota va de 4.0 a 7.0.</p>
+</div>
+
+<script>
+    /* ============================================================
+       DATOS DE LA RÚBRICA (6 criterios, 3 niveles cada uno)
+       ============================================================ */
+    const CRITERIA = [
+        {
+            name: "Modelado Conceptual (Pasos 1-2)",
+            levels: [
+                { label: "Excelente", points: 4, desc: "Define variables y parámetros con total precisión técnica según el caso y flujo de servicio." },
+                { label: "Suficiente", points: 2, desc: "Identifica variables pero presenta omisiones menores en los parámetros técnicos." },
+                { label: "Insuficiente", points: 1, desc: "Confunde la naturaleza de las variables o las distribuciones asignadas." }
+            ]
+        },
+        {
+            name: "Modelado Matemático (Pasos 3-4)",
+            levels: [
+                { label: "Excelente", points: 4, desc: "Aplica con exactitud el mapeo de intervalos y la lógica de la transformada inversa para la triangular." },
+                { label: "Suficiente", points: 2, desc: "Presenta errores leves en la acumulación de probabilidades o lógica de búsqueda." },
+                { label: "Insuficiente", points: 1, desc: "Falla gravemente en la formulación probabilística o el uso de la transformada inversa." }
+            ]
+        },
+        {
+            name: "Paso 5 (Ejecución en Excel)",
+            levels: [
+                { label: "Excelente", points: 4, desc: "Planilla Excel lógica, dinámica y sin errores. Refleja correctamente el flujo de 8 horas y 1,000 iteraciones." },
+                { label: "Suficiente", points: 2, desc: "Excel funcional pero con errores de referencia o uso de valores fijos (no dinámico)." },
+                { label: "Insuficiente", points: 1, desc: "Excel desorganizado, errores de cálculo o no automatiza las iteraciones." }
+            ]
+        },
+        {
+            name: "Rigurosidad Estadística",
+            levels: [
+                { label: "Excelente", points: 4, desc: "Valida la utilidad diaria mediante test de hipótesis (valida H0) o Intervalo de Confianza al 95%, justificando correctamente la representatividad de la muestra." },
+                { label: "Suficiente", points: 2, desc: "Realiza el cálculo estadístico pero la justificación o interpretación de los intervalos es superficial." },
+                { label: "Insuficiente", points: 1, desc: "No realiza pruebas estadísticas de validez sobre los resultados de salida (utilidad diaria)." }
+            ]
+        },
+        {
+            name: "Análisis y Decisión Final",
+            levels: [
+                { label: "Excelente", points: 4, desc: "Decisión fundamentada en los datos de la simulación, análisis de riesgo/beneficio y rigor estadístico." },
+                { label: "Suficiente", points: 2, desc: "Toma la decisión pero la justificación basada en los datos simulados es débil." },
+                { label: "Insuficiente", points: 1, desc: "Decisión puramente intuitiva; ignora los resultados numéricos de la simulación." }
+            ]
+        },
+        {
+            name: "Estructura y Redacción del Informe",
+            levels: [
+                { label: "Excelente", points: 4, desc: "Informe escrito impecable, estructurado según las 8 secciones solicitadas, con lenguaje técnico adecuado, tablas explicativas y gráficos integrados." },
+                { label: "Suficiente", points: 2, desc: "Informe estructurado pero con vacíos menores en la explicación técnica o formato desordenado." },
+                { label: "Insuficiente", points: 1, desc: "Informe incompleto, falto de estructura o con deficiencias graves de redacción y formato." }
+            ]
+        }
+    ];
+
+    const STUDENTS = [
+        "AMPUERO/ALMONACID FRANCO",
+        "BALCAZAR/CASANOVA RICARDO",
+        "BARRIENTOS/VERA GABRIELA",
+        "OYARZUN/PRADO JOEL",
+        "ROJEL/VOLKE FELIPE",
+        "SANDOVAL/SANDOVAL CARLOS",
+        "TRUJILLO/CASTILLO GONZALO",
+        "URIBE/TEJEDA SEBASTIAN",
+        "VALDIVIA/TORO SEBASTIAN"
+    ];
+
+    /* ============================================================
+       ESCALA DE NOTAS (Sistema chileno, dificultad 60%)
+       Mínimo 6 pts -> nota 1.0 | 60% de 24 = 14.4 pts -> nota 4.0
+       Máximo 24 pts -> nota 7.0
+       ============================================================ */
+    const MIN_POINTS = 6;      // 6 criterios x 1 pt (todo Insuficiente)
+    const MAX_POINTS = 24;     // 6 criterios x 4 pts (todo Excelente)
+    const PASS_POINTS = MAX_POINTS * 0.6; // 14.4
+    const PASS_GRADE = 4.0;
+
+    function computeGrade(p) {
+        let g;
+        if (p <= PASS_POINTS) {
+            g = 1.0 + 3.0 * (p - MIN_POINTS) / (PASS_POINTS - MIN_POINTS);
+        } else {
+            g = PASS_GRADE + 3.0 * (p - PASS_POINTS) / (MAX_POINTS - PASS_POINTS);
+        }
+        return Math.max(1.0, Math.min(7.0, g));
+    }
+
+    /* ============================================================
+       RENDERIZADO DE LA RÚBRICA INTERACTIVA
+       ============================================================ */
+    const rubricBody = document.getElementById('rubric-body');
+    const selectedLevels = {}; // criterio -> índice del nivel seleccionado
+
+    CRITERIA.forEach((c, ci) => {
+        const tr = document.createElement('tr');
+        const nameTd = document.createElement('td');
+        nameTd.className = 'criteria-name';
+        nameTd.innerHTML = '<strong>' + c.name + '</strong>';
+        tr.appendChild(nameTd);
+
+        c.levels.forEach((lv, li) => {
+            const td = document.createElement('td');
+            td.className = 'option';
+            td.innerHTML = '<div class="opt-label">' + lv.label + ' (' + lv.points + ' pts)</div><div class="opt-desc">' + lv.desc + '</div>';
+            td.addEventListener('click', () => selectLevel(ci, li));
+            tr.appendChild(td);
+        });
+        rubricBody.appendChild(tr);
+    });
+
+    function selectLevel(ci, li) {
+        const row = rubricBody.children[ci];
+        const cells = row.querySelectorAll('.option');
+        cells.forEach(cell => cell.classList.remove('selected'));
+        cells[li].classList.add('selected');
+        selectedLevels[ci] = li;
+        updateResults();
+    }
+
+    function getTotal() {
+        let sum = 0;
+        for (let ci = 0; ci < CRITERIA.length; ci++) {
+            if (selectedLevels[ci] !== undefined) {
+                sum += CRITERIA[ci].levels[selectedLevels[ci]].points;
+            }
+        }
+        return sum;
+    }
+
+    function updateResults() {
+        const total = getTotal();
+        const grade = computeGrade(total);
+        const evaluated = Object.keys(selectedLevels).length;
+
+        document.getElementById('total-score').textContent = total;
+        document.getElementById('grade').textContent = (evaluated > 0 ? grade.toFixed(1) : '—');
+
+        const statusEl = document.getElementById('status');
+        statusEl.classList.remove('pending', 'passed', 'failed');
+        if (evaluated === 0) {
+            statusEl.textContent = 'Sin evaluar';
+            statusEl.classList.add('pending');
+        } else if (grade >= PASS_GRADE) {
+            statusEl.textContent = 'Aprobado';
+            statusEl.classList.add('passed');
+        } else {
+            statusEl.textContent = 'Reprobado';
+            statusEl.classList.add('failed');
+        }
+
+        const missing = CRITERIA.length - evaluated;
+        const warning = document.getElementById('warning');
+        if (missing > 0) {
+            warning.style.display = 'block';
+            warning.textContent = '⚠ Faltan por evaluar ' + missing + ' criterio(s). La calificación se muestra de forma parcial.';
+        } else {
+            warning.style.display = 'none';
+        }
+    }
+
+    /* ============================================================
+       DESPLEGABLES DE ESTUDIANTES (sin repetición)
+       ============================================================ */
+    const studentSelects = Array.from(document.querySelectorAll('.student-select'));
+
+    function refreshStudentOptions() {
+        const selected = studentSelects.map(s => s.value);
+        studentSelects.forEach((sel, idx) => {
+            const current = sel.value;
+            // Nombres ya usados en OTROS desplegables
+            const taken = selected.filter((v, i) => i !== idx && v !== '');
+            sel.innerHTML = '';
+
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = '— Seleccionar estudiante —';
+            sel.appendChild(placeholder);
+
+            STUDENTS.forEach(name => {
+                if (taken.includes(name)) return; // no se repite
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                if (name === current) opt.selected = true;
+                sel.appendChild(opt);
+            });
+
+            if (taken.includes(current)) sel.value = '';
+        });
+    }
+
+    studentSelects.forEach(sel => sel.addEventListener('change', refreshStudentOptions));
+    refreshStudentOptions();
+
+    /* ============================================================
+       UTILIDADES
+       ============================================================ */
+    function formatDate(iso) {
+        if (!iso) return '—';
+        const parts = iso.split('-');
+        return parts.length === 3 ? parts[2] + '/' + parts[1] + '/' + parts[0] : iso;
+    }
+
+    function getSelectedStudents() {
+        return studentSelects.map(s => s.value || '—');
+    }
+
+    /* ============================================================
+       GENERACIÓN DEL PDF (Tamaño Carta: 8.5" x 11" = 612 x 792 pt)
+       ============================================================ */
+    function downloadPDF() {
+        if (typeof window.jspdf === 'undefined') {
+            alert('No se pudo cargar la librería jsPDF. Verifique su conexión a internet y recargue la página.');
+            return;
+        }
+
+        const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'letter' });
+        const pageW = doc.internal.pageSize.getWidth();
+        const margin = 40;
+        let y = 0;
+
+        // ---- Encabezado ----
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(24);
+        doc.setTextColor(30, 58, 138);
+        doc.text('Retroalimentación Solemne I', pageW / 2, 64, { align: 'center' });
+
+        doc.setFontSize(13);
+        doc.setTextColor(59, 130, 246);
+        doc.text('Rúbrica de Evaluación', pageW / 2, 86, { align: 'center' });
+
+        doc.setDrawColor(30, 58, 138);
+        doc.setLineWidth(2);
+        doc.line(margin, 100, pageW - margin, 100);
+
+        // ---- Estudiantes evaluados ----
+        y = 122;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.text('Estudiantes evaluados:', margin, y);
+        y += 16;
+
+        doc.setFont('helvetica', 'normal');
+        getSelectedStudents().forEach((name, i) => {
+            doc.text((i + 1) + '.  ' + name, margin + 12, y);
+            y += 15;
+        });
+
+        // ---- Fecha ----
+        doc.setFont('helvetica', 'bold');
+        doc.text('Fecha de la evaluación:', margin, y + 4);
+        doc.setFont('helvetica', 'normal');
+        doc.text(formatDate(document.getElementById('eval-date').value), margin + 150, y + 4);
+        y += 22;
+
+        // ---- Tabla de la rúbrica (solo el nivel seleccionado) ----
+        const bodyRows = [];
+        CRITERIA.forEach((c, ci) => {
+            const li = selectedLevels[ci];
+            const lv = li !== undefined ? c.levels[li] : null;
+            bodyRows.push([
+                c.name,
+                lv ? lv.label : '—',
+                lv ? String(lv.points) : '—',
+                lv ? lv.desc : 'Sin evaluar'
+            ]);
+        });
+
+        doc.autoTable({
+            startY: y,
+            head: [['Criterio', 'Desempeño', 'Puntaje', 'Descripción del nivel seleccionado']],
+            body: bodyRows,
+            margin: { left: margin, right: margin },
+            headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold', fontSize: 10 },
+            styles: { fontSize: 9, cellPadding: 5, textColor: [30, 41, 59] },
+            columnStyles: {
+                0: { cellWidth: 120, fontStyle: 'bold' },
+                1: { cellWidth: 60, halign: 'center' },
+                2: { cellWidth: 35, halign: 'center' },
+                3: { cellWidth: 'auto' }
+            },
+            alternateRowStyles: { fillColor: [241, 245, 249] }
+        });
+
+        // ---- Puntaje total y calificación ----
+        y = doc.lastAutoTable.finalY + 24;
+        const total = getTotal();
+        const grade = computeGrade(total);
+        const status = grade >= PASS_GRADE ? 'APROBADO' : 'REPROBADO';
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(30, 41, 59);
+        doc.text('Puntaje total: ' + total + ' / ' + MAX_POINTS + ' puntos', margin, y);
+        doc.text('Calificación: ' + grade.toFixed(1), pageW - margin, y, { align: 'right' });
+        y += 20;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(grade >= PASS_GRADE ? 21 : 185, grade >= PASS_GRADE ? 128 : 28, grade >= PASS_GRADE ? 61 : 28);
+        doc.text('Estado: ' + status + ' (nota de aprobación ' + PASS_GRADE.toFixed(1) + ')', margin, y);
+        y += 26;
+
+        // ---- Observaciones ----
+        const obs = document.getElementById('observations').value.trim();
+        if (obs) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.setTextColor(30, 41, 59);
+            doc.text('Observaciones del docente:', margin, y);
+            y += 14;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            const obsLines = doc.splitTextToSize(obs, pageW - margin * 2);
+            doc.text(obsLines, margin, y);
+        }
+
+        // ---- Nota aclaratoria ----
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text('Escala de dificultad al 60%: 6 pts (nota 1.0) -> 14.4 pts (nota 4.0) -> 24 pts (nota 7.0).', margin, doc.internal.pageSize.getHeight() - 28);
+
+        doc.save('rubrica-solemne-i.pdf');
+    }
+
+    updateResults();
+</script>
+</body>
+</html>
